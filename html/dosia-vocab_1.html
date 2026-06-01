@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도시락 VOC樂</title>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#fdf6fb;--bg2:#f9eef6;--white:#ffffff;
+  --surface:#ffffff;--surface2:#fdf0f8;--border:#f0d9ee;
+  --text:#2d1f2e;--text2:#5a3d5c;--muted:#b08ab5;
+  --accent:#c084b8;--accent2:#d4a0cb;--accent-light:#fae8f7;
+  --green:#22c55e;--green-light:#dcfce7;
+  --red:#ef4444;--red-light:#fee2e2;
+  --yellow:#f59e0b;--yellow-light:#fef3c7;
+  --purple:#9b7fbd;--purple-light:#f0e9fa;
+  --pink:#e879a8;--pink-light:#fde7f3;
+  --blue:#8fb4e8;--blue-light:#e8f0fb;
+  --orange:#e8956a;--orange-light:#fdeee6;
+  --radius:18px;--radius-sm:10px;
+  --shadow:0 2px 16px rgba(192,132,184,0.12);
+  --shadow-md:0 4px 32px rgba(192,132,184,0.16);
+  --shadow-lg:0 8px 48px rgba(192,132,184,0.20);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'DM Sans', 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background decoration */
+body::before {
+  content: '';
+  position: fixed;
+  top: -120px; right: -120px;
+  width: 420px; height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(92,110,248,0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -100px; left: -100px;
+  width: 350px; height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236,72,153,0.09) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HEADER */
+.header {
+  background: var(--white);
+  border-bottom: 1.5px solid var(--border);
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 12px rgba(92,110,248,0.07);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 3px 10px rgba(92,110,248,0.3);
+}
+.logo-text {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.logo-text span { color: var(--accent); }
+.header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.pill {
+  padding: 5px 13px;
+  border-radius: 50px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid transparent;
+}
+.pill-blue { background: var(--blue-light); color: var(--blue); border-color: #bfdbfe; }
+.pill-green { background: var(--green-light); color: var(--green); border-color: #bbf7d0; }
+.pill-yellow { background: var(--yellow-light); color: var(--yellow); border-color: #fde68a; }
+.pill-purple { background: var(--purple-light); color: var(--purple); border-color: #ddd6fe; }
+.pill-orange { background: var(--orange-light); color: var(--orange); border-color: #fed7aa; }
+
+.tts-btn {
+  padding: 5px 13px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+.tts-btn.on { background: var(--blue-light); border-color: #bfdbfe; color: var(--blue); }
+
+/* MAIN */
+.main { max-width: 1100px; margin: 0 auto; padding: 24px 20px; position: relative; z-index: 1; }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 22px;
+  background: var(--white);
+  padding: 5px;
+  border-radius: 50px;
+  width: 100%;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--border);
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab {
+  padding: 8px 4px;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all .2s;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+.tab.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 3px 10px rgba(92,110,248,0.3);
+}
+.tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
+.section { display: none; }
+.section.active { display: block; }
+
+/* BUTTONS */
+.btn {
+  padding: 11px 22px;
+  border-radius: 50px;
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(92,110,248,0.35); }
+.btn-primary:hover { background: var(--accent2); box-shadow: 0 6px 20px rgba(92,110,248,0.4); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(--white); color: var(--text2); border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-green { background: var(--green); color: white; box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
+.btn-green:hover { background: #16a34a; }
+.btn-red { background: var(--red); color: white; box-shadow: 0 4px 14px rgba(239,68,68,0.3); }
+.btn-red:hover { background: #dc2626; }
+.btn-purple { background: var(--purple); color: white; box-shadow: 0 4px 14px rgba(139,92,246,0.3); }
+.btn-purple:hover { background: #7c3aed; }
+.btn-blue { background: var(--blue); color: white; box-shadow: 0 4px 14px rgba(59,130,246,0.3); }
+.btn-blue:hover { background: #2563eb; }
+.btn-orange { background: var(--orange); color: white; box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* HOME DASHBOARD */
+.review-banner {
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: 0 6px 24px rgba(92,110,248,0.3);
+}
+.review-banner-text { color: white; }
+.review-banner-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 3px; }
+.review-banner-sub { font-size: 0.78rem; opacity: 0.85; }
+.review-banner .btn { background: white; color: var(--accent); font-weight: 800; }
+
+.no-review-banner {
+  background: var(--green-light);
+  border: 1.5px solid #bbf7d0;
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  color: #15803d;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.dash-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s;
+}
+.dash-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.dash-card-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin: 0 auto 10px;
+}
+.dash-val { font-size: 1.9rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.dash-lbl { font-size: 0.7rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+
+.level-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.level-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.level-name-big { font-size: 1rem; font-weight: 900; }
+.level-hint { font-size: 0.75rem; color: var(--muted); }
+.level-bar { height: 8px; background: var(--surface2); border-radius: 50px; overflow: hidden; border: 1px solid var(--border); }
+.level-fill { height: 100%; border-radius: 50px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+
+.quick-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* UPLOAD */
+.api-box {
+  background: var(--white);
+  border: 1.5px solid #bfdbfe;
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.api-box-title { font-weight: 800; font-size: 0.88rem; margin-bottom: 4px; color: var(--blue); }
+.api-box-desc { font-size: 0.76rem; color: var(--muted); margin-bottom: 10px; }
+.api-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.api-input { flex: 1; min-width: 180px; padding: 9px 13px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: monospace; font-size: 0.8rem; outline: none; transition: border-color .2s; }
+.api-input:focus { border-color: var(--accent); }
+#apiKeyStatus { font-size: 0.73rem; margin-top: 6px; }
+
+.upload-area {
+  background: var(--white);
+  border: 2px dashed #c7d2fe;
+  border-radius: var(--radius);
+  padding: 52px 36px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .3s;
+}
+.upload-area:hover, .upload-area.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  transform: scale(1.003);
+}
+.upload-icon { font-size: 3rem; margin-bottom: 12px; }
+.upload-area h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; }
+.upload-area p { color: var(--muted); font-size: 0.86rem; }
+#fileInput { display: none; }
+.preview-container { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.preview-box { background: var(--white); border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+.preview-box img { width: 100%; max-height: 240px; object-fit: contain; background: var(--surface2); }
+.preview-label { padding: 8px 12px; font-weight: 700; font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.action-row { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+
+.danger-zone {
+  background: var(--red-light);
+  border: 1.5px solid #fecaca;
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.danger-zone-text { }
+.danger-zone-title { font-weight: 800; font-size: 0.88rem; color: var(--red); }
+.danger-zone-sub { font-size: 0.74rem; color: #b91c1c; margin-top: 2px; }
+
+.import-box {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-top: 16px;
+}
+.import-box h3 { font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; }
+.import-box p { font-size: 0.76rem; color: var(--muted); margin-bottom: 10px; }
+.import-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+.import-tab { padding: 5px 13px; border-radius: 50px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--muted); font-family: inherit; font-weight: 700; font-size: 0.76rem; cursor: pointer; transition: all .15s; }
+.import-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+.import-textarea { width: 100%; height: 88px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: monospace; font-size: 0.74rem; padding: 10px; outline: none; resize: vertical; line-height: 1.5; transition: border-color .2s; }
+.import-textarea:focus { border-color: var(--accent); }
+.import-hint { font-size: 0.7rem; color: var(--muted); margin-bottom: 7px; }
+.import-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+/* WORD LIST */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.section-title { font-size: 1.1rem; font-weight: 900; }
+.count-badge { background: var(--accent-light); color: var(--accent); padding: 3px 11px; border-radius: 50px; font-size: 0.74rem; font-weight: 800; border: 1.5px solid #c7d2fe; }
+.word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.word-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.word-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #c7d2fe; }
+.word-card.memorized { border-color: #bbf7d0; background: linear-gradient(135deg, #f0fdf4, white); }
+.word-card.memorized::after { content: '✓'; position: absolute; top: 12px; right: 14px; color: var(--green); font-weight: 900; font-size: 1rem; }
+.word-card.due-today { border-color: #fed7aa; background: linear-gradient(135deg, #fff7ed, white); }
+.word-card.due-today::before { content: '📅'; position: absolute; top: 12px; right: 14px; font-size: 0.9rem; }
+.word-en { font-size: 1.2rem; font-weight: 900; color: var(--accent); margin-bottom: 3px; letter-spacing: -0.3px; }
+.word-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 7px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid #c7d2fe;
+}
+.word-ko { font-size: 0.92rem; font-weight: 700; color: var(--text); margin-bottom: 7px; }
+.word-example { font-size: 0.76rem; color: var(--text2); line-height: 1.5; font-style: italic; }
+.word-example-ko { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.srs-info { font-size: 0.66rem; color: var(--muted); margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--border); }
+.card-footer { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; }
+.mini-btn { padding: 4px 10px; border-radius: 50px; border: 1.5px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 0.7rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+.mini-btn:hover { background: var(--accent-light); border-color: #c7d2fe; color: var(--accent); }
+.mini-btn.active { background: var(--green-light); color: var(--green); border-color: #bbf7d0; }
+
+/* FLASHCARD */
+.flashcard-area { display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
+.progress-bar-wrap { width: 100%; max-width: 560px; margin-bottom: 18px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+.progress-bar { height: 6px; background: var(--surface2); border-radius: 50px; overflow: hidden; border: 1px solid var(--border); }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 50px; transition: width .4s ease; }
+.flashcard { width: 100%; max-width: 520px; min-height: 270px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+.flashcard-inner { position: relative; width: 100%; min-height: 270px; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,0,.2,1); border-radius: 24px; }
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.card-front { background: white; border: 2px solid #c7d2fe; box-shadow: 0 8px 40px rgba(92,110,248,0.15); }
+.card-back { background: linear-gradient(145deg, #eef0ff, #f5f0ff); border: 2px solid #ddd6fe; box-shadow: 0 8px 40px rgba(139,92,246,0.15); transform: rotateY(180deg); }
+.card-hint { color: var(--muted); font-size: 0.78rem; font-weight: 600; margin-bottom: 12px; }
+.card-word { font-size: 2.6rem; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
+.card-type { color: var(--purple); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; }
+.card-meaning { font-size: 1.8rem; font-weight: 900; color: var(--purple); margin-bottom: 8px; }
+.card-example { font-size: 0.82rem; color: var(--text2); font-style: italic; line-height: 1.6; max-width: 360px; }
+.card-example-ko { font-size: 0.78rem; color: var(--muted); margin-top: 4px; font-style: normal; }
+.flashcard-controls { display: flex; gap: 12px; align-items: center; }
+
+.srs-btns { display: flex; gap: 8px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+.srs-btn { padding: 8px 16px; border-radius: 50px; border: none; font-family: inherit; font-weight: 700; font-size: 0.78rem; cursor: pointer; transition: all .2s; }
+.srs-easy { background: var(--green-light); color: var(--green); border: 1.5px solid #bbf7d0; }
+.srs-easy:hover { background: var(--green); color: white; }
+.srs-normal { background: var(--yellow-light); color: var(--yellow); border: 1.5px solid #fde68a; }
+.srs-normal:hover { background: var(--yellow); color: white; }
+.srs-hard { background: var(--red-light); color: var(--red); border: 1.5px solid #fecaca; }
+.srs-hard:hover { background: var(--red); color: white; }
+
+/* QUIZ */
+.quiz-setup { max-width: 560px; margin: 0 auto; }
+.quiz-setup h2 { font-size: 1.5rem; font-weight: 900; margin-bottom: 5px; }
+.quiz-setup > p { color: var(--muted); margin-bottom: 20px; font-size: 0.9rem; }
+.quiz-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.quiz-mode-card { background: var(--white); border: 2px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all .2s; text-align: center; box-shadow: var(--shadow); }
+.quiz-mode-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.quiz-mode-card.selected { border-color: var(--accent); background: var(--accent-light); }
+.mode-icon { font-size: 1.8rem; margin-bottom: 6px; }
+.mode-name { font-weight: 800; font-size: 0.88rem; color: var(--text); }
+.mode-desc { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+.quiz-dir-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.dir-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--border); background: var(--white); color: var(--muted); font-family: inherit; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all .2s; text-align: center; box-shadow: var(--shadow); }
+.dir-btn.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+.quiz-game { max-width: 600px; margin: 0 auto; }
+.quiz-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.quiz-score-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.q-badge { padding: 5px 12px; border-radius: 50px; font-weight: 700; font-size: 0.78rem; display: flex; align-items: center; gap: 4px; border: 1.5px solid; }
+.q-badge.correct { background: var(--green-light); color: var(--green); border-color: #bbf7d0; }
+.q-badge.wrong { background: var(--red-light); color: var(--red); border-color: #fecaca; }
+.q-badge.combo { background: var(--yellow-light); color: var(--yellow); border-color: #fde68a; }
+
+.quiz-qbox { background: var(--white); border-radius: var(--radius); padding: 26px; margin-bottom: 14px; border: 1.5px solid var(--border); box-shadow: var(--shadow); text-align: center; }
+.quiz-qnum { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.quiz-question { font-size: 2rem; font-weight: 900; color: var(--accent); line-height: 1.2; }
+.quiz-question.ko { font-size: 1.6rem; color: var(--purple); }
+.quiz-question.fill { font-size: 1.3rem; color: var(--text); font-style: italic; }
+.quiz-meaning-hint { font-size: 0.86rem; color: var(--green); font-weight: 700; margin-top: 6px; }
+.quiz-qtype-label { font-size: 0.71rem; color: var(--muted); margin-top: 6px; }
+.hint-first-letter { font-size: 0.8rem; color: var(--yellow); margin-top: 3px; font-weight: 700; }
+
+.choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.choice-btn { background: var(--white); border: 2px solid var(--border); border-radius: 13px; padding: 13px 15px; font-family: inherit; font-weight: 700; font-size: 0.88rem; color: var(--text); cursor: pointer; transition: all .15s; text-align: left; line-height: 1.3; box-shadow: var(--shadow); }
+.choice-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-light); color: var(--accent); transform: translateY(-1px); }
+.choice-btn.correct-ans { border-color: var(--green)!important; background: var(--green-light)!important; color: var(--green)!important; }
+.choice-btn.wrong-ans { border-color: var(--red)!important; background: var(--red-light)!important; color: var(--red)!important; }
+.choice-btn:disabled { cursor: default; }
+.choice-num { font-size: 0.66rem; color: var(--muted); display: block; margin-bottom: 2px; }
+
+.typing-area { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 12px; }
+.typing-input { width: 100%; max-width: 360px; padding: 13px 18px; background: var(--white); border: 2px solid var(--border); border-radius: 13px; color: var(--text); font-family: inherit; font-size: 1.1rem; font-weight: 700; text-align: center; outline: none; transition: all .2s; box-shadow: var(--shadow); }
+.typing-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(92,110,248,0.1); }
+.typing-input.correct { border-color: var(--green); background: var(--green-light); }
+.typing-input.wrong { border-color: var(--red); background: var(--red-light); animation: shake .3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+.sentence-build { margin-bottom: 12px; }
+.sentence-answer-area { min-height: 50px; background: var(--surface2); border: 2px dashed #c7d2fe; border-radius: 12px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; align-items: center; transition: border-color .2s; }
+.sentence-answer-area.has-content { border-color: var(--accent); background: var(--accent-light); }
+.word-chip { padding: 6px 13px; border-radius: 50px; font-weight: 700; font-size: 0.84rem; cursor: pointer; transition: all .15s; user-select: none; }
+.word-chip.bank { background: var(--white); border: 1.5px solid var(--border); color: var(--text); box-shadow: var(--shadow); }
+.word-chip.bank:hover { border-color: var(--accent); color: var(--accent); }
+.word-chip.placed { background: var(--accent-light); border: 1.5px solid #c7d2fe; color: var(--accent); }
+.word-chip.placed:hover { background: var(--red-light); border-color: #fecaca; color: var(--red); }
+.word-bank { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+
+.result-feedback { text-align: center; padding: 13px; border-radius: 13px; margin-bottom: 12px; font-weight: 700; font-size: 0.95rem; display: none; border: 1.5px solid; }
+.result-feedback.correct { background: var(--green-light); color: #15803d; border-color: #bbf7d0; }
+.result-feedback.wrong { background: var(--red-light); color: #b91c1c; border-color: #fecaca; }
+.result-feedback .correct-word { font-size: 1.2rem; display: block; margin-top: 3px; font-weight: 900; }
+
+.srs-after { text-align: center; padding: 8px 0 4px; }
+.srs-after-title { font-size: 0.75rem; color: var(--muted); font-weight: 600; margin-bottom: 7px; }
+
+.quiz-result { max-width: 460px; margin: 0 auto; text-align: center; padding: 32px 16px; }
+.result-trophy { font-size: 4rem; margin-bottom: 10px; }
+.result-title { font-size: 1.7rem; font-weight: 900; margin-bottom: 6px; }
+.result-score { font-size: 3rem; font-weight: 900; color: var(--accent); margin: 12px 0; }
+.result-stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
+.r-stat { text-align: center; }
+.r-stat-val { font-size: 1.6rem; font-weight: 900; }
+.r-stat-lbl { font-size: 0.7rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+.result-btns { display: flex; gap: 9px; justify-content: center; flex-wrap: wrap; }
+
+/* STATS */
+.stats-hero { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 11px; margin-bottom: 20px; }
+.hero-card { background: var(--white); border-radius: var(--radius); padding: 16px; border: 1.5px solid var(--border); box-shadow: var(--shadow); text-align: center; transition: transform .2s; }
+.hero-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.hero-val { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.hero-lbl { font-size: 0.7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+.stats-section-title { font-size: 0.92rem; font-weight: 800; margin-bottom: 10px; margin-top: 20px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.mastery-list { display: flex; flex-direction: column; gap: 6px; }
+.mastery-row { background: var(--white); border-radius: 11px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--border); box-shadow: var(--shadow); transition: transform .15s; }
+.mastery-row:hover { transform: translateX(2px); }
+.mastery-word { font-weight: 900; font-size: 0.9rem; color: var(--accent); min-width: 95px; }
+.mastery-ko { font-size: 0.76rem; color: var(--muted); flex: 1; }
+.mastery-bar-wrap { width: 85px; height: 5px; background: var(--surface2); border-radius: 50px; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
+.mastery-bar-fill { height: 100%; border-radius: 50px; transition: width .5s ease; }
+.mastery-pct { font-size: 0.74rem; font-weight: 800; min-width: 32px; text-align: right; }
+.mastery-count { font-size: 0.66rem; color: var(--muted); min-width: 44px; text-align: right; }
+.wrong-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.wrong-card { background: var(--white); border: 1.5px solid #fecaca; border-radius: 13px; padding: 14px; position: relative; box-shadow: var(--shadow); }
+.wc-en { font-size: 1.05rem; font-weight: 900; color: var(--red); margin-bottom: 3px; }
+.wc-ko { font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; }
+.wc-stat { font-size: 0.7rem; color: var(--muted); }
+.wc-badge { position: absolute; top: 10px; right: 10px; background: var(--red-light); color: var(--red); padding: 2px 7px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; border: 1px solid #fecaca; }
+.mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 52px; margin-top: 7px; }
+.chart-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.chart-bar { width: 100%; border-radius: 4px 4px 0 0; transition: height .4s ease; min-height: 2px; }
+.chart-lbl { font-size: 0.56rem; color: var(--muted); font-weight: 600; }
+
+/* EFFECTS */
+.combo-pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0); font-size: 2.5rem; font-weight: 900; color: var(--yellow); z-index: 50; pointer-events: none; text-shadow: 0 2px 12px rgba(245,158,11,0.5); transition: all .38s cubic-bezier(.34,1.56,.64,1); }
+.combo-pop.show { transform: translate(-50%,-60%) scale(1); }
+.combo-pop.hide { opacity: 0; transform: translate(-50%,-80%) scale(.8); }
+@keyframes ripple { 0%{transform:scale(0);opacity:.5} 100%{transform:scale(3);opacity:0} }
+.ripple { position: fixed; width: 40px; height: 40px; border-radius: 50%; pointer-events: none; z-index: 60; animation: ripple .5s ease-out forwards; }
+.ripple.correct { background: rgba(34,197,94,.4); }
+.ripple.wrong { background: rgba(239,68,68,.4); }
+
+/* LOADING */
+.loading-overlay { position: fixed; inset: 0; background: rgba(240,244,255,.88); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+.loading-overlay.show { display: flex; }
+.spinner { width: 46px; height: 46px; border: 4px solid #c7d2fe; border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 14px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text { font-size: 0.96rem; font-weight: 700; color: var(--accent); }
+.loading-sub { color: var(--muted); margin-top: 4px; font-size: 0.8rem; }
+
+/* EMPTY */
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideDown{from{transform:translateY(0);}to{transform:translateY(100%);opacity:0}}
+.qopt-btn{padding:7px 12px;border-radius:50px;border:1.5px solid var(--border);background:var(--white);color:var(--text2);font-family:inherit;font-weight:700;font-size:.78rem;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.qopt-btn:hover{border-color:var(--accent);color:var(--accent);}
+.qopt-btn.selected{background:var(--accent);color:white;border-color:var(--accent);}
+.empty-state { text-align: center; padding: 60px 16px; }
+.empty-state .emoji { font-size: 3rem; margin-bottom: 10px; }
+.empty-state h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+.empty-state p { color: var(--muted); font-size: 0.84rem; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: white; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 0.82rem; transition: transform .3s ease; z-index: 200; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media(max-width:580px){
+  .preview-container,.quiz-mode-grid,.choices-grid,.dashboard-grid,.stats-hero{grid-template-columns:1fr;}
+  .header{padding:8px 10px 7px;}
+  .header-top{gap:8px;margin-bottom:4px;}
+  .header-badge{width:44px;height:44px;}
+  .header-title-main{font-size:1.02rem;}
+  .header-bottom{gap:4px;}
+  .main{padding:12px 10px 18px;}
+  .tabs{gap:4px;margin-bottom:16px;padding:4px;}
+  .tab{padding:8px 10px;font-size:.74rem;flex:0 0 auto;}
+  .section-header{align-items:flex-start;}
+  .quick-btns .btn,.import-btns .btn,.action-row .btn,.flashcard-controls .btn{width:100%;justify-content:center;}
+  .quick-btns,.import-btns,.action-row,.flashcard-controls{gap:8px;}
+  .word-grid{grid-template-columns:1fr;}
+  .word-card{padding:14px;}
+  .card-footer{gap:8px;}
+  .mini-btn{flex:1 1 calc(50% - 8px);min-width:0;padding:7px 8px;font-size:.68rem;}
+  .flashcard,.flashcard-inner{min-height:230px;}
+  .card-face{padding:24px 18px;}
+  .card-word{font-size:1.9rem;}
+  .card-meaning{font-size:1.55rem;}
+  .quiz-question{font-size:1.4rem;}
+  .quiz-question.ko{font-size:1.18rem;}
+  .quiz-dir-row{flex-direction:column;}
+  .upload-area{padding:34px 18px;}
+  .preview-box img{max-height:180px;}
+  .import-box{padding:14px;}
+  .api-box{padding:14px;}
+  .count-badge,.hpill,.xp-label{font-size:.68rem;}
+}
+
+.header{background:linear-gradient(135deg,#fff0fb,#fce8f8);border-bottom:1.5px solid var(--border);padding:10px 16px 7px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(192,132,184,0.12);}
+.header-top{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.header-badge{width:72px;height:72px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(192,132,184,0.4));}
+.header-title-main{font-size:1.4rem;font-weight:900;color:var(--text);letter-spacing:-.5px;line-height:1.1;}
+.header-title-main span{color:#c084b8;}
+.header-bottom{display:flex;align-items:center;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px;}
+.header-bottom::-webkit-scrollbar{display:none;}
+.hpill{padding:3px 9px;border-radius:50px;font-size:.67rem;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.hpill.orange{background:var(--orange-light);color:var(--orange);}
+.hpill.purple{background:var(--purple-light);color:var(--purple);}
+.hpill.blue{background:var(--blue-light);color:var(--blue);}
+.hpill.green{background:var(--green-light);color:var(--green);}
+.hpill.yellow{background:var(--yellow-light);color:var(--yellow);}
+.xp-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0;min-width:60px;}
+.xp-label{font-size:.65rem;font-weight:800;color:#c084b8;white-space:nowrap;}
+.tab.active{background:linear-gradient(135deg,#c084b8,#9b7fbd);color:white;box-shadow:0 3px 10px rgba(155,127,189,0.35);}
+.btn-primary{background:linear-gradient(135deg,#c084b8,#9b7fbd);color:white;box-shadow:0 4px 14px rgba(192,132,184,0.4);}
+.btn-primary:hover{background:linear-gradient(135deg,#d4a0cb,#b8a0d4);}
+.word-en{font-size:1.2rem;font-weight:900;color:#c084b8;margin-bottom:3px;letter-spacing:-.3px;}
+.card-front{background:linear-gradient(145deg,#fff5fc,#fce8f8);border:2px solid #ecc8e8;box-shadow:0 8px 40px rgba(192,132,184,0.15);}
+.card-back{background:linear-gradient(145deg,#f5eafa,#ede0f5);border:2px solid #d4b8e8;box-shadow:0 8px 40px rgba(139,92,246,0.15);transform:rotateY(180deg);}
+.card-word{font-size:2.6rem;font-weight:900;color:#c084b8;letter-spacing:-1px;}
+.card-meaning{font-size:1.8rem;font-weight:900;color:#9b7fbd;margin-bottom:8px;}
+.quiz-question{font-size:2rem;font-weight:900;color:#c084b8;line-height:1.2;}
+.quiz-question.ko{font-size:1.6rem;color:#9b7fbd;}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideDown{from{transform:translateY(0);}to{transform:translateY(100%);opacity:0}}
+@keyframes xpFloat{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-55px)}}
+.qopt-btn{padding:7px 12px;border-radius:50px;border:1.5px solid var(--border);background:var(--white);color:var(--text2);font-family:inherit;font-weight:700;font-size:.78rem;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.qopt-btn:hover{border-color:var(--accent);color:var(--accent);}
+.qopt-btn.selected{background:linear-gradient(135deg,#c084b8,#9b7fbd);color:white;border-color:#c084b8;}
+.cheer-pop{position:fixed;top:28%;left:50%;transform:translateX(-50%) translateY(-20px) scale(.8);background:var(--white);border-radius:20px;padding:13px 22px;font-weight:900;font-size:.95rem;box-shadow:0 8px 32px rgba(0,0,0,.1);z-index:400;pointer-events:none;opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);border:2px solid var(--border);white-space:nowrap;}
+.cheer-pop.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+.levelup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.levelup-card{background:var(--white);border-radius:24px;padding:32px 26px;text-align:center;max-width:320px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:9px;}
+.badge-item{background:var(--white);border:1.5px solid var(--border);border-radius:13px;padding:11px 7px;text-align:center;}
+.badge-item.locked{opacity:.3;filter:grayscale(1);}
+.badge-icon{font-size:1.7rem;margin-bottom:3px;}
+.badge-name{font-size:.62rem;font-weight:700;color:var(--text2);}
+.heart{font-size:1rem;}
+.heart.empty{filter:grayscale(1);opacity:.3;}
+.xp-bar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#e8b4d8,#c084b8);transition:width .6s ease;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <img src="data:image/png;base64,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" class="header-badge" alt="시아">
+    <div style="flex:1"><div class="header-title-main">도시아 <span>단어장</span></div></div>
+    <button class="tts-btn" id="ttsToggle" onclick="toggleTTS()">🔊</button>
+  </div>
+  <div class="header-bottom">
+    <div class="hearts-bar" id="heartsBar"></div>
+    <div class="xp-wrap">
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xpFill" style="width:0%"></div></div>
+      <span id="xpLabel" class="xp-label">0XP</span>
+    </div>
+    <div class="hpill orange" id="streakBadge">🔥 0일</div>
+    <div class="hpill purple" id="levelBadge">🥉 뉴비</div>
+    <div class="hpill blue">전체 <span id="totalCount">0</span></div>
+    <div class="hpill green">암기 <span id="memCount">0</span></div>
+    <div class="hpill yellow">정답 <span id="accCount">-</span></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('home',this)">🏠 홈</button>
+    <button class="tab" onclick="switchTab('upload',this)">📷 추출</button>
+    <button class="tab" onclick="switchTab('list',this)">📚 목록</button>
+    <button class="tab" onclick="switchTab('flash',this)">🃏 카드</button>
+    <button class="tab" onclick="switchTab('quiz',this)">🎯 퀴즈</button>
+    <button class="tab" onclick="switchTab('stats',this)">📊 통계</button>
+  </div>
+
+  <div id="section-home" class="section active"><div id="homeContent"></div></div>
+
+  <div id="section-upload" class="section">
+  <div class="import-box">
+    <h3>📋 단어 추가</h3>
+    <p>JSON / 직접입력 / 범위 초기화</p>
+    <div class="import-tabs">
+      <button class="import-tab active" id="itab-json" onclick="selectImportTab('json',this)">JSON</button>
+      <button class="import-tab" id="itab-tsv" onclick="selectImportTab('tsv',this)">직접입력</button>
+      <button class="import-tab" id="itab-reset" onclick="selectImportTab('reset',this)">범위 초기화</button>
+    </div>
+    <div id="importHint" class="import-hint"></div>
+    <textarea id="jsonInput" class="import-textarea" placeholder="여기에 붙여넣기..."></textarea>
+    <div class="import-btns">
+      <button class="btn btn-primary" onclick="importData()">📥 가져오기</button>
+      <button class="btn btn-green" onclick="loadBuiltIn()">⚡ 내장단어</button>
+      <button class="btn btn-secondary" style="padding:9px 14px;font-size:.78rem"
+        onclick="document.getElementById('jsonInput').value=''">지우기</button>
+    </div>
+  </div>
+  <div class="danger-zone" style="margin-top:14px">
+    <div class="danger-zone-text">
+      <div class="danger-zone-title">단어 전체 삭제</div>
+      <div class="danger-zone-sub">모든 단어 + 내장단어 초기화</div>
+    </div>
+    <button class="btn btn-red" style="padding:9px 18px;font-size:.82rem"
+      onclick="deleteAllWords()">전체 삭제</button>
+  </div>
+</div>
+
+<div id="section-list" class="section">
+    <div class="section-header">
+      <div class="section-title">📚 단어 목록</div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+        <span class="count-badge" id="listBadge">0개</span>
+        <button class="btn btn-secondary" style="padding:5px 11px;font-size:.73rem" onclick="resetMemorized()">🔄 암기초기화</button>
+        <button class="btn btn-secondary" style="padding:5px 11px;font-size:.73rem;color:var(--red);border-color:#fecaca" onclick="deleteAllWords()">🗑 전체삭제</button>
+      </div>
+    </div>
+    <div id="wordGrid" class="word-grid">
+      <div class="empty-state"><div class="emoji">📷</div><h3>아직 단어가 없어!</h3></div>
+    </div>
+  </div>
+
+  <div id="section-flash" class="section"><div id="flashContent"></div></div>
+  <div id="section-quiz" class="section"><div id="quizContent"></div></div>
+  <div id="section-stats" class="section"><div id="statsContent"></div></div>
+</div>
+
+<div class="combo-pop" id="comboPop"></div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">AI가 단어를 분석하는 중...</div>
+  <div class="loading-sub">잠깐만 기다려줘 ✨</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+
+
+
+// ── 내장 단어 ──
+var DEFAULT_BUILTIN_WORDS = [
+  {en:'hop',type:'verb',ko:'깡충 뛰다',example:'The rabbit hops across the grass.',example_ko:'토끼가 잔디를 깡충 뛰어다닌다.'},
+  {en:'jump rope',type:'verb',ko:'줄넘기를 하다',example:'She likes to jump rope after school.',example_ko:'그녀는 방과 후 줄넘기를 좋아한다.'},
+  {en:'just',type:'adv',ko:'방금',example:'I just finished my homework.',example_ko:'나는 방금 숙제를 끝냈다.'},
+  {en:'move',type:'verb',ko:'이사하다',example:'We will move to a new house next month.',example_ko:'우리는 다음 달 새 집으로 이사할 것이다.'},
+  {en:'opposite',type:'adj',ko:'반대의',example:'They live on the opposite side of the street.',example_ko:'그들은 길 반대편에 산다.'},
+  {en:'rope',type:'noun',ko:'(줄넘기의) 줄, 밧줄',example:'Hold the rope tightly.',example_ko:'줄을 꽉 잡아라.'},
+  {en:'show',type:'verb',ko:'보여주다',example:'Can you show me your drawing?',example_ko:'네 그림을 보여줄 수 있어?'},
+  {en:'spin',type:'verb',ko:'돌다',example:'The top spins fast on the floor.',example_ko:'팽이가 바닥에서 빠르게 돈다.'},
+  {en:'sure',type:'adv',ko:'물론',example:'Sure, I can help you.',example_ko:'물론, 내가 도와줄 수 있어.'},
+  {en:'swing',type:'verb',ko:'돌리다',example:'She swings the rope for her friend.',example_ko:'그녀는 친구를 위해 줄을 돌린다.'},
+  {en:'yet',type:'adv',ko:'아직',example:'I have not eaten lunch yet.',example_ko:'나는 아직 점심을 먹지 않았다.'},
+  {en:'afternoon',type:'noun',ko:'오후',example:'We play outside in the afternoon.',example_ko:'우리는 오후에 밖에서 논다.'},
+  {en:'all',type:'adv',ko:'내내',example:'It rained all day long.',example_ko:'하루 내내 비가 왔다.'},
+  {en:'amazed',type:'adj',ko:'놀란',example:'I was amazed by the magic show.',example_ko:'나는 마술 쇼에 놀랐다.'},
+  {en:'anyone',type:'pron',ko:'아무도',example:'Anyone can join the club.',example_ko:'누구든 동아리에 가입할 수 있다.'},
+  {en:'both',type:'adj',ko:'둘 다',example:'Both of us like soccer.',example_ko:'우리 둘 다 축구를 좋아한다.'},
+  {en:'circle',type:'noun',ko:'원',example:'Draw a circle on the paper.',example_ko:'종이에 원을 그려라.'},
+  {en:'direction',type:'noun',ko:'방향',example:'Which direction is the school?',example_ko:'학교는 어느 방향이야?'},
+  {en:'each other',type:'pron',ko:'서로',example:'They help each other every day.',example_ko:'그들은 매일 서로 도와준다.'},
+  {en:'end',type:'noun',ko:'끝',example:'The end of the movie was sad.',example_ko:'영화의 끝이 슬펐다.'},
+  {en:'face',type:'verb',ko:'마주보다',example:'Face the front of the classroom.',example_ko:'교실 앞을 마주봐라.'},
+  {en:'hold',type:'verb',ko:'잡다',example:'Hold my hand when we cross the street.',example_ko:'길을 건널 때 내 손을 잡아.'}
+];
+var BUILTIN_WORDS_STORAGE_KEY = 'doeun-builtin-words';
+var builtinWords = loadBuiltinWords();
+
+// ── 상태 ──
+var hearts=5,maxHearts=5,sessionHeartLost=0;
+var xp=parseInt(localStorage.getItem("dv-xp")||"0");
+var quizCount=100;
+var todayAnswered=0;
+var stats=JSON.parse(localStorage.getItem("dv-stats")||'{"totalAnswered":0,"totalCorrect":0,"maxComboEver":0,"memorized":0,"xp":0,"goalsCompleted":0,"perfectRuns":0}');
+var earnedBadges=JSON.parse(localStorage.getItem("dv-badges")||"[]");
+var CHEERS_C=['완벽해! 🎉','훌륭해! ✨','최고야! 🔥','정확해! 💯'];
+var CHEERS_W=['괜찮아! 💪','한 번 더! 🙌','금방 외울 거야! 😊'];
+var BADGES=[
+  {id:'first',name:'첫걸음',icon:'🌱',check:function(s){return s.totalAnswered>=1;}},
+  {id:'combo10',name:'콤보10',icon:'💎',check:function(s){return s.maxComboEver>=10;}},
+  {id:'streak3',name:'3일연속',icon:'🔥',check:function(s){return getStreak()>=3;}},
+  {id:'mem10',name:'단어달인',icon:'📖',check:function(s){return s.memorized>=10;}},
+  {id:'mem20',name:'단어마스터',icon:'🏆',check:function(s){return s.memorized>=20;}},
+  {id:'xp100',name:'XP100',icon:'⚡',check:function(s){return s.xp>=100;}},
+  {id:'perfect',name:'무적',icon:'🛡️',check:function(s){return s.perfectRuns>=1;}}
+];
+var words = [];
+var uploadedImages = [];
+var flashIdx = 0, isFlipped = false, flashWords = [];
+var quizMode = 'choice4', quizDir = 'en2ko';
+var quizList = [], quizIdx = 0;
+var quizCorrect = 0, quizWrong = 0, combo = 0, maxCombo = 0;
+var quizAnswered = false;
+var currentSentenceAnswer = [];
+var currentSentenceBank = [];
+var importTabMode = 'json';
+var ttsEnabled = false;
+var pendingWrongWords = []; // 오답 우선 반복
+
+// ── 레벨 시스템 ──
+var LEVELS = [
+  {name:'뉴비',min:0,color:'#cd7f32',border:'#cd7f32',emoji:'🥉'},
+  {name:'브론즈',min:10,color:'#cd7f32',border:'#cd7f32',emoji:'🥉'},
+  {name:'실버',min:30,color:'#aaa',border:'#aaa',emoji:'🥈'},
+  {name:'골드',min:60,color:'#ffd700',border:'#ffd700',emoji:'🥇'},
+  {name:'마스터',min:100,color:'#9b5de5',border:'#9b5de5',emoji:'👑'}
+];
+function getLevel(memCount) {
+  var lv = LEVELS[0];
+  for(var i=0;i<LEVELS.length;i++){if(memCount>=LEVELS[i].min)lv=LEVELS[i];}
+  return lv;
+}
+
+function makeWordEntry(w){
+  return {
+    en:w.en,
+    type:w.type,
+    ko:w.ko,
+    example:w.example,
+    example_ko:w.example_ko,
+    id:Date.now()+Math.random(),
+    memorized:false,
+    quizCorrect:0,
+    quizWrong:0,
+    nextReview:null,
+    srsLevel:0,
+    addedAt:new Date().toISOString()
+  };
+}
+function normalizeBuiltinWord(w){
+  if(!w||!w.en)return null;
+  return {
+    en:String(w.en).trim(),
+    type:w.type||'etc',
+    ko:w.ko||'',
+    example:w.example||'',
+    example_ko:w.example_ko||''
+  };
+}
+function loadBuiltinWords(){
+  var saved = localStorage.getItem(BUILTIN_WORDS_STORAGE_KEY);
+  if(saved){
+    try{
+      var parsed = JSON.parse(saved);
+      if(Array.isArray(parsed)) return parsed.map(normalizeBuiltinWord).filter(Boolean);
+    }catch(e){}
+  }
+  return DEFAULT_BUILTIN_WORDS.map(normalizeBuiltinWord).filter(Boolean);
+}
+function saveBuiltinWords(){
+  localStorage.setItem(BUILTIN_WORDS_STORAGE_KEY, JSON.stringify(builtinWords));
+}
+function syncBuiltinWords(newWords){
+  if(!newWords||!newWords.length)return;
+  var existing = new Set(builtinWords.map(function(w){return w.en.toLowerCase();}));
+  var added = false;
+  newWords.forEach(function(w){
+    var item = normalizeBuiltinWord(w);
+    if(!item)return;
+    var key = item.en.toLowerCase();
+    if(existing.has(key))return;
+    builtinWords.push(item);
+    existing.add(key);
+    added = true;
+  });
+  if(added) saveBuiltinWords();
+}
+function addWordsToLibrary(newWords){
+  words = words.concat(newWords.map(makeWordEntry));
+  saveWords();
+  syncBuiltinWords(newWords);
+}
+
+// ── 초기화 ──
+(function(){
+  var saved = localStorage.getItem('doeun-words');
+  if(saved){ try{words=JSON.parse(saved);}catch(e){words=[];} }
+  if(!words||!words.length){ loadBuiltInSilent(); }
+})();
+
+function loadBuiltInSilent(){
+  words = builtinWords.map(makeWordEntry);
+  saveWords();
+}
+function loadBuiltIn(){
+  if(!builtinWords.length){showToast('⚠️ 내장 단어가 비어 있어!');return;}
+  var existing = new Set(words.map(function(w){return w.en.toLowerCase();}));
+  var newW = builtinWords.filter(function(w){return !existing.has(w.en.toLowerCase());});
+  if(!newW.length){showToast('⚠️ 이미 모두 있어!');return;}
+  addWordsToLibrary(newW);
+  updateAll();
+  showToast('⚡ '+newW.length+'개 내장 단어 추가!');
+  setTimeout(function(){gotoTab('list');},600);
+}
+
+// ── 탭 ──
+function switchTab(name,el){window.scrollTo({top:0,behavior:"smooth"});window.scrollTo({top:0,behavior:"smooth"});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('section-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='home') renderHome();
+  if(name==='list') renderWordList();
+  if(name==='flash') renderFlash();
+  if(name==='quiz') renderQuizSetup();
+  if(name==='stats') renderStats();
+}
+function gotoTab(name){window.scrollTo({top:0,behavior:"smooth"});window.scrollTo({top:0,behavior:"smooth"});
+  var map={home:0,upload:1,list:2,flash:3,quiz:4,stats:5};
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('section-'+name).classList.add('active');
+  document.querySelectorAll('.tab')[map[name]].classList.add('active');
+  if(name==='home') renderHome();
+  if(name==='list') renderWordList();
+  if(name==='flash') renderFlash();
+  if(name==='quiz') renderQuizSetup();
+  if(name==='stats') renderStats();
+}
+
+// ── HOME ──
+function renderHome(){
+  var mem=words.filter(function(w){return w.memorized;}).length;
+  var streak=getStreak();
+  var today=todayStr();
+  var rc=words.filter(function(w){return !w.memorized&&(!w.nextReview||w.nextReview<=today);}).length;
+  var qTot=words.reduce(function(s,w){return s+(w.quizCorrect||0)+(w.quizWrong||0);},0);
+  var qCor=words.reduce(function(s,w){return s+(w.quizCorrect||0);},0);
+  var acc=qTot>0?Math.round(qCor/qTot*100):0;
+  var lv=getLevel(mem);
+  var eb=earnedBadges.length;
+  document.getElementById('homeContent').innerHTML=
+    (rc>0
+      ?'<div class="review-banner"><div class="review-banner-text"><div class="review-banner-title">📅 오늘 복습 '+rc+'개</div><div class="review-banner-sub">지금 시작!</div></div><button class="btn" style="background:white;color:var(--accent);font-weight:800" onclick="startTodayReview()">시작! →</button></div>'
+      :'<div class="no-review-banner">🎉 오늘 복습 완료!</div>')
+    +'<div class="dashboard-grid">'
+    +'<div class="dash-card c-blue"><div class="dash-card-icon" style="background:var(--blue-light)">❤️</div><div id="homeHearts" style="display:flex;gap:2px;justify-content:center;margin-bottom:4px"></div><div class="dash-lbl">남은 목숨</div></div>'
+    +'<div class="dash-card c-yellow"><div class="dash-card-icon" style="background:var(--yellow-light)">⚡</div><div class="dash-val" style="color:#d97706">'+xp+'</div><div class="dash-lbl">총 XP</div></div>'
+    +'<div class="dash-card c-orange"><div class="dash-card-icon" style="background:var(--orange-light)">🔥</div><div class="dash-val" style="color:var(--orange)">'+streak+'일</div><div class="dash-lbl">연속 학습</div></div>'
+    +'<div class="dash-card c-green"><div class="dash-card-icon" style="background:var(--green-light)">📖</div><div class="dash-val" style="color:var(--green)">'+mem+'</div><div class="dash-lbl">암기 완료</div></div>'
+    +'<div class="dash-card c-purple"><div class="dash-card-icon" style="background:var(--purple-light)">🏅</div><div class="dash-val" style="color:var(--purple)">'+eb+'</div><div class="dash-lbl">획득 뱃지</div></div>'
+    +'<div class="dash-card c-blue"><div class="dash-card-icon" style="background:var(--blue-light)">🎯</div><div class="dash-val" style="color:var(--blue)">'+acc+'%</div><div class="dash-lbl">정답률</div></div>'
+    +'</div>'
+    +'<div class="level-card"><div class="level-top"><div class="level-name-big">'+lv.emoji+' '+lv.name+'</div><div class="level-hint">암기 '+mem+'/100</div></div><div class="level-bar"><div class="level-fill" style="width:'+Math.min(mem,100)+'%;background:linear-gradient(90deg,'+lv.color+',#9b7fbd)"></div></div></div>'
+    +'<div class="quick-btns"><button class="btn btn-primary" onclick="gotoTab(\'quiz\')">🎯 퀴즈</button><button class="btn btn-blue" onclick="gotoTab(\'flash\')">🃏 카드</button><button class="btn btn-secondary" onclick="gotoTab(\'upload\')">📋 단어</button><button class="btn btn-purple" onclick="showBadges()">🏅 뱃지</button></div>';
+  renderHearts();
+  var hh=document.getElementById('homeHearts');
+  if(hh)hh.innerHTML=Array.from({length:maxHearts},function(_,i){return '<span style="font-size:.9rem;'+(i>=hearts?'filter:grayscale(1);opacity:.3':'')+'">❤️</span>';}).join('');
+}
+
+function startTodayReview(){
+  var today = todayStr();
+  var due = words.filter(function(w){return !w.memorized&&(!w.nextReview||w.nextReview<=today);});
+  if(!due.length){showToast('복습할 단어가 없어!');return;}
+  quizList = shuffle(due);
+  quizIdx=0;quizCorrect=0;quizWrong=0;combo=0;maxCombo=0;pendingWrongWords=[];
+  gotoTab('quiz');
+  setTimeout(function(){renderQuizQuestion();},50);
+}
+
+// ── TTS ──
+function toggleTTS(){
+  ttsEnabled=!ttsEnabled;
+  var btn=document.getElementById('ttsToggle');
+  btn.textContent=ttsEnabled?'🔊 TTS ON':'🔊 TTS OFF';
+  btn.classList.toggle('on',ttsEnabled);
+  showToast(ttsEnabled?'🔊 TTS 켜짐':'🔇 TTS 꺼짐');
+}
+function speakWord(text,force){
+  if(!force&&!ttsEnabled) return;
+  if(!window.speechSynthesis){showToast('⚠️ TTS 미지원 브라우저');return;}
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=0.85;u.pitch=1;
+  window.speechSynthesis.speak(u);
+}
+
+// ── API KEY ──
+function saveApiKey(){
+  var key=document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('sk-')){showToast('❌ sk-ant-... 형식이어야 해!');return;}
+  localStorage.setItem('doeun-apikey',key);
+  document.getElementById('apiKeyInput').value='';
+  updateApiKeyStatus();showToast('✅ API 키 저장!');
+}
+function clearApiKey(){localStorage.removeItem('doeun-apikey');document.getElementById('apiKeyInput').value='';updateApiKeyStatus();showToast('🗑 삭제됨');}
+function getApiKey(){return localStorage.getItem('doeun-apikey')||'';}
+function updateApiKeyStatus(){
+  var key=getApiKey();var el=document.getElementById('apiKeyStatus');if(!el)return;
+  if(key){el.innerHTML='✅ API 키 설정됨 ('+key.slice(0,12)+'...)';el.style.color='var(--green)';}
+  else{el.innerHTML='⚠️ API 키 없음 — 사진 추출 불가';el.style.color='var(--muted)';}
+}
+
+// ── UPLOAD ──
+function handleFiles(files){
+  uploadedImages=[];
+  var c=document.getElementById('previewContainer');c.innerHTML='';c.style.display='grid';
+  document.getElementById('actionRow').style.display='flex';
+  Array.from(files).forEach(function(file,i){
+    var r=new FileReader();
+    r.onload=function(e){
+      uploadedImages.push({data:e.target.result,file:file});
+      var box=document.createElement('div');box.className='preview-box';
+      box.innerHTML='<img src="'+e.target.result+'"><div class="preview-label">📷 사진 '+(i+1)+'</div>';
+      c.appendChild(box);
+    };r.readAsDataURL(file);
+  });
+}
+var dz=document.getElementById('dropZone');
+if(dz)dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
+if(dz)dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over');});
+if(dz)dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag-over');handleFiles(e.dataTransfer.files);});
+function clearImages(){uploadedImages=[];document.getElementById('previewContainer').style.display='none';document.getElementById('previewContainer').innerHTML='';document.getElementById('actionRow').style.display='none';document.getElementById('fileInput').value='';}
+
+async function analyzeImages(){
+  if(!uploadedImages.length)return;
+  var apiKey=getApiKey();if(!apiKey){showToast('❌ API 키를 먼저 입력해줘!');return;}
+  var btn=document.getElementById('analyzeBtn');btn.disabled=true;
+  document.getElementById('loadingOverlay').classList.add('show');
+  try{
+    var imgs=uploadedImages.map(function(img){return{type:'image',source:{type:'base64',media_type:img.file.type||'image/jpeg',data:img.data.split(',')[1]}};});
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:4000,
+        messages:[{role:'user',content:imgs.concat([{type:'text',
+          text:'이미지에서 영어 단어를 모두 추출해줘. JSON 배열만 반환, 다른 텍스트 없이.\n[{"en":"단어","type":"noun/verb/adj/adv/etc","ko":"한국어뜻","example":"중학생수준영어예문","example_ko":"예문한국어번역"}]\n없으면 []. 중복제거, 영어단어만.'}])}]})
+    });
+    var data=await res.json();
+    var text=data.content.map(function(c){return c.text||'';}).join('');
+    var extracted=[];
+    try{extracted=JSON.parse(text.replace(/```json|```/g,'').trim());}
+    catch(e){var m=text.match(/\[[\s\S]*\]/);if(m)extracted=JSON.parse(m[0]);}
+    if(!extracted.length){showToast('⚠️ 단어를 찾지 못했어!');}
+    else{
+      var existing=new Set(words.map(function(w){return w.en.toLowerCase();}));
+      var newW=extracted.filter(function(w){return w.en&&!existing.has(w.en.toLowerCase());}).map(function(w){
+        return {en:w.en,type:w.type||'etc',ko:w.ko||'',example:w.example||'',example_ko:w.example_ko||'',
+          id:Date.now()+Math.random(),memorized:false,quizCorrect:0,quizWrong:0,nextReview:null,srsLevel:0,addedAt:new Date().toISOString()};
+      });
+      if(!newW.length)showToast('⚠️ 모두 중복이야!');
+      else{addWordsToLibrary(newW);updateAll();showToast('🎉 '+newW.length+'개 추출!');clearImages();setTimeout(function(){gotoTab('list');},600);}
+    }
+  }catch(err){showToast('❌ 오류: '+err.message);}
+  finally{btn.disabled=false;document.getElementById('loadingOverlay').classList.remove('show');}
+}
+
+// ── IMPORT ──
+function selectImportTab(mode,el){
+  importTabMode=mode;
+  document.querySelectorAll('.import-tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('jsonInput').value='';
+  var hints={
+    json:'[{"en":"word","type":"noun","ko":"뜻","example":"예문","example_ko":"번역"}]',
+    tsv:'영어단어[탭]뜻[탭]예문 형식으로 붙여넣기 (엑셀에서 복사한 것도 OK)',
+    reset:'초기화할 영어 단어들을 한 줄에 하나씩 입력 (암기완료→미암기, 퀴즈기록 초기화)'
+  };
+  document.getElementById('importHint').textContent=hints[mode];
+}
+function importData(){
+  var raw=document.getElementById('jsonInput').value.trim();
+  if(!raw){showToast('⚠️ 내용을 입력해줘!');return;}
+  if(importTabMode==='json') importJSON(raw);
+  else if(importTabMode==='tsv') importTSV(raw);
+  else if(importTabMode==='reset') resetByList(raw);
+}
+function importJSON(raw){
+  var parsed;
+  try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+  catch(e){showToast('❌ JSON 오류: '+e.message);return;}
+  if(!Array.isArray(parsed)||!parsed.length){showToast('⚠️ 데이터 없음');return;}
+  var existing=new Set(words.map(function(w){return w.en.toLowerCase();}));
+  var newW=parsed.filter(function(w){return w.en&&!existing.has(w.en.toLowerCase());}).map(function(w){
+    return {en:w.en,type:w.type||'etc',ko:w.ko||'',example:w.example||'',example_ko:w.example_ko||''};
+  });
+  if(!newW.length){showToast('⚠️ 모두 중복이야!');return;}
+  addWordsToLibrary(newW);updateAll();
+  document.getElementById('jsonInput').value='';
+  showToast('📥 '+newW.length+'개 추가!');setTimeout(function(){gotoTab('list');},600);
+}
+function importTSV(raw){
+  var lines=raw.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var newW=[];var existing=new Set(words.map(function(w){return w.en.toLowerCase();}));
+  lines.forEach(function(line){
+    var cols=line.split('\t');
+    if(cols.length<2)return;
+    var en=cols[0].trim();var ko=cols[1].trim();var example=cols[2]?cols[2].trim():''; 
+    if(!en||existing.has(en.toLowerCase()))return;
+    newW.push({en:en,type:'etc',ko:ko,example:example,example_ko:''});
+    existing.add(en.toLowerCase());
+  });
+  if(!newW.length){showToast('⚠️ 추가할 단어 없음');return;}
+  addWordsToLibrary(newW);updateAll();
+  document.getElementById('jsonInput').value='';
+  showToast('📥 '+newW.length+'개 TSV 추가!');setTimeout(function(){gotoTab('list');},600);
+}
+function resetByList(raw){
+  var enList=raw.split('\n').map(function(l){return l.trim().toLowerCase();}).filter(Boolean);
+  var count=0;
+  words.forEach(function(w){
+    if(enList.indexOf(w.en.toLowerCase())!==-1){
+      w.memorized=false;w.quizCorrect=0;w.quizWrong=0;w.nextReview=null;w.srsLevel=0;count++;
+    }
+  });
+  if(!count){showToast('⚠️ 해당 단어를 찾지 못했어!');return;}
+  saveWords();updateAll();renderWordList();
+  document.getElementById('jsonInput').value='';
+  showToast('🔄 '+count+'개 단어 초기화 완료!');
+}
+
+// ── WORD LIST ──
+function typeLabel(t){return {noun:'명사',verb:'동사',adj:'형용사',adv:'부사',prep:'전치사',pron:'대명사',conj:'접속사',etc:'기타'}[t]||t||'단어';}
+function srsLabel(w){
+  if(!w.nextReview) return '';
+  var today=todayStr();
+  if(w.nextReview<=today) return '📅 복습 필요';
+  return '다음 복습: '+w.nextReview;
+}
+function renderWordList(){
+  var grid=document.getElementById('wordGrid');
+  document.getElementById('listBadge').textContent=words.length+'개';
+  if(!words.length){grid.innerHTML='<div class="empty-state"><div class="emoji">📷</div><h3>단어가 없어!</h3></div>';return;}
+  var today=todayStr();
+  grid.innerHTML=words.map(function(w,i){
+    var isDue=!w.memorized&&w.nextReview&&w.nextReview<=today;
+    return '<div class="word-card'+(w.memorized?' memorized':isDue?' due-today':'')+'">'+
+      '<div class="word-en">'+w.en+'</div>'+
+      '<div class="word-type">'+typeLabel(w.type)+'</div>'+
+      '<div class="word-ko">'+w.ko+'</div>'+
+      '<div class="word-example">"'+(w.example||'')+'"</div>'+
+      (w.example_ko?'<div class="word-example-ko">'+w.example_ko+'</div>':'')+
+      (w.nextReview?'<div class="srs-info">'+srsLabel(w)+'</div>':'')+
+      '<div class="card-footer">'+
+        '<button class="mini-btn '+(w.memorized?'active':'')+'" onclick="toggleMemorized('+i+')">'+(w.memorized?'✓ 암기완료':'○ 암기하기')+'</button>'+
+        '<button class="mini-btn" onclick="speakWord(\''+w.en.replace(/'/g,"\\'")+'\',true)" title="발음">🔊</button>'+'<button class="mini-btn '+(w.important?'active':'')+' " onclick="toggleImportant(\''+w.en.replace(/'/g,"\\'")+'\');renderWordList()" title="중요">'+(w.important?'⭐':'☆')+'</button>'+
+        '<button class="mini-btn '+(w.important?'active':'')+' " onclick="toggleImportant(\''+w.en.replace(/'/g,"\\'")+'\');renderWordList()" title="중요">'+(w.important?'⭐':'☆')+'</button>'+
+        '<button class="mini-btn" onclick="deleteWord('+i+')">🗑</button>'+
+      '</div></div>';
+  }).join('');
+}
+function toggleMemorized(i){words[i].memorized=!words[i].memorized;saveWords();updateAll();renderWordList();}
+function deleteWord(i){words.splice(i,1);saveWords();updateAll();renderWordList();}
+function resetMemorized(){if(!confirm('암기 완료 표시를 전부 초기화할까요?'))return;words.forEach(function(w){w.memorized=false;});saveWords();updateAll();renderWordList();showToast('🔄 초기화!');}
+function deleteAllWords(){if(!confirm('모든 단어를 완전히 삭제할까요?\n내장 단어도 초기화됩니다.'))return;words=[];builtinWords=[];localStorage.removeItem('doeun-words');localStorage.removeItem('doeun-words-ver');saveWords();saveBuiltinWords();updateAll();renderWordList();gotoTab('upload');showToast('전체 삭제 완료!');}
+
+// ── FLASHCARD ──
+function renderFlash(){
+  flashWords=shuffle(words.filter(function(w){return !w.memorized;}));
+  var c=document.getElementById('flashContent');
+  if(!words.length){c.innerHTML='<div class="empty-state"><div class="emoji">🃏</div><h3>단어가 없어!</h3></div>';return;}
+  if(!flashWords.length){c.innerHTML='<div class="empty-state"><div class="emoji">🎉</div><h3>전부 외웠어!!</h3><button class="btn btn-primary" style="margin-top:16px" onclick="gotoTab(\'quiz\')">🎯 퀴즈 도전!</button></div>';return;}
+  flashIdx=0;isFlipped=false;renderFlashCard();
+}
+function renderFlashCard(){
+  if(flashIdx>=flashWords.length){
+    document.getElementById('flashContent').innerHTML='<div class="empty-state"><div class="emoji">🎊</div><h3>한 바퀴 완료!</h3><div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="btn btn-primary" onclick="renderFlash()">🔄 다시</button><button class="btn btn-green" onclick="gotoTab(\'quiz\')">🎯 퀴즈!</button></div></div>';
+    return;
+  }
+  var w=flashWords[flashIdx];
+  var pct=Math.round((flashIdx/flashWords.length)*100);
+  speakWord(w.en);
+  document.getElementById('flashContent').innerHTML=
+    '<div class="flashcard-area">'+
+      '<div class="progress-bar-wrap"><div class="progress-info"><span>'+(flashIdx+1)+'/'+flashWords.length+'</span><span>'+pct+'%</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div></div>'+
+      '<div class="flashcard" id="flashcard" onclick="flipCard()">'+
+        '<div class="flashcard-inner">'+
+          '<div class="card-face card-front"><div class="card-hint">탭해서 뜻 확인 👆</div><div class="card-word">'+w.en+'</div><div class="card-type">'+typeLabel(w.type)+'</div></div>'+
+          '<div class="card-face card-back"><div class="card-meaning">'+w.ko+'</div><div class="card-example">"'+(w.example||'')+'"</div>'+(w.example_ko?'<div class="card-example-ko">'+w.example_ko+'</div>':'')+' </div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="flashcard-controls">'+
+        '<button class="btn btn-red" onclick="cardResult(false)">😅 모르겠어</button>'+
+        '<button class="btn btn-green" onclick="cardResult(true)">😎 알겠어!</button>'+
+      '</div>'+
+      '<div class="srs-btns" id="srsBtns" style="display:none">'+
+        '<div style="font-size:.76rem;color:var(--muted);width:100%;text-align:center;margin-bottom:4px">다음 복습 시점 선택</div>'+
+        '<button class="srs-btn srs-easy" onclick="applySRS('+flashIdx+',7)">😊 쉬움 (7일 뒤)</button>'+
+        '<button class="srs-btn srs-normal" onclick="applySRS('+flashIdx+',3)">🙂 보통 (3일 뒤)</button>'+
+        '<button class="srs-btn srs-hard" onclick="applySRS('+flashIdx+',1)">😓 어려움 (내일)</button>'+
+      '</div>'+
+    '</div>';
+}
+function flipCard(){var c=document.getElementById('flashcard');if(!c)return;isFlipped=!isFlipped;c.classList.toggle('flipped',isFlipped);if(isFlipped)document.getElementById('srsBtns').style.display='flex';}
+function cardResult(knew){
+  if(knew){
+    var i=words.findIndex(function(w){return w.id===flashWords[flashIdx].id;});
+    if(i!==-1){words[i].memorized=true;saveWords();updateAll();}
+    showToast('✨ 잘했어!');spawnRipple(true);
+  } else{showToast('💪 다시 도전!');spawnRipple(false);}
+  flashIdx++;isFlipped=false;renderFlashCard();
+}
+function applySRS(fIdx,days){
+  var w=flashWords[fIdx];
+  var i=words.findIndex(function(x){return x.id===w.id;});
+  if(i!==-1){
+    var d=new Date();d.setDate(d.getDate()+days);
+    words[i].nextReview=d.toISOString().slice(0,10);
+    words[i].srsLevel=(words[i].srsLevel||0)+1;
+    saveWords();
+  }
+  flashIdx++;isFlipped=false;renderFlashCard();
+  showToast('📅 '+days+'일 후 복습 예약!');
+}
+
+// ── QUIZ ──
+var quizCount=100;var quizRetestThreshold=90;
+function renderQuizSetup(){
+  var c=document.getElementById("quizContent");
+  if(words.length<4){c.innerHTML='<div class="empty-state"><div class="emoji">🎯</div><h3>단어 4개 이상!</h3></div>';return;}
+  var n50=Math.max(4,Math.round(words.length*0.5));
+  var nImp=words.filter(function(w){return w.important;}).length;
+  c.innerHTML='<div style="max-width:480px;margin:0 auto">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:1.05rem;font-weight:900">🎯 퀴즈 설정</span><span style="font-size:.76rem;color:var(--muted)">'+words.length+'개</span></div>'
+    +'<div style="font-size:.68rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">방향</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:11px">'
+    +'<button class="qopt-btn selected" id="dir-ko2en" onclick="selectDir(\'ko2en\')">🇰🇷 한→영</button>'
+    +'<button class="qopt-btn" id="dir-en2ko" onclick="selectDir(\'en2ko\')">🇬🇧 영→한</button>'
+    +'<button class="qopt-btn" id="dir-both" onclick="selectDir(\'both\')">🎲 랜덤</button>'
+    +'</div>'
+    +'<div style="font-size:.68rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">유형</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:11px;flex-wrap:wrap">'
+    +'<button class="qopt-btn selected" id="qm-typing" onclick="selectMode(\'typing\')">⌨️ 타이핑</button>'
+    +'<button class="qopt-btn" id="qm-choice4" onclick="selectMode(\'choice4\')">🔢 4지선다</button>'
+    +'<button class="qopt-btn" id="qm-fill" onclick="selectMode(\'fill\')">✏️ 빈칸</button>'
+    +'<button class="qopt-btn" id="qm-sentence" onclick="selectMode(\'sentence\')">🔤 문장</button>'
+    +'<button class="qopt-btn" id="qm-mixed" onclick="selectMode(\'mixed\')">🎲 믹스</button>'
+    +'</div>'
+    +'<div style="font-size:.68rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">범위</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:16px">'
+    +'<button class="qopt-btn selected" id="cnt-100" onclick="selectCount(100)">전체('+words.length+')</button>'
+    +'<button class="qopt-btn" id="cnt-50" onclick="selectCount(50)">50%('+n50+')</button>'
+    +'<button class="qopt-btn" id="cnt-important" onclick="selectCount(\'important\')">⭐중요('+nImp+')</button>'
+    +'</div>'
+    +'<button class="btn btn-primary" onclick="startQuiz()" style="width:100%;justify-content:center;padding:14px;font-size:1rem">🚀 퀴즈 시작!</button>'
+    +'</div>';
+  quizMode="typing";quizDir="ko2en";quizCount=100;
+}
+function selectMode(m){quizMode=m;document.querySelectorAll("[id^=qm-]").forEach(function(b){b.classList.remove("selected");});var el=document.getElementById("qm-"+m);if(el)el.classList.add("selected");}
+function selectDir(d){quizDir=d;document.querySelectorAll("[id^=dir-]").forEach(function(b){b.classList.remove("selected");});var el=document.getElementById("dir-"+d);if(el)el.classList.add("selected");}
+function selectCount(p){quizCount=p;document.querySelectorAll("[id^=cnt-]").forEach(function(b){b.classList.remove("selected");});var el=document.getElementById("cnt-"+p);if(el)el.classList.add("selected");}
+function selectRetest(t){quizRetestThreshold=t;document.querySelectorAll('[id^=ret-]').forEach(function(b){b.classList.remove('selected');});var el=document.getElementById('ret-'+t);if(el)el.classList.add('selected');}
+function startQuiz(){var pool;if(quizCount==='important'){pool=words.filter(function(w){return w.important;});if(!pool.length){showToast('⭐ 중요 단어 없어!');return;}}else{pool=shuffle(words.slice());if(quizCount===50)pool=pool.slice(0,Math.max(4,Math.round(pool.length*0.5)));}quizList=shuffle(pool);quizIdx=0;quizCorrect=0;quizWrong=0;combo=0;maxCombo=0;pendingWrongWords=[];renderQuizQuestion();}
+
+function getActualMode(){if(quizMode==='mixed')return ['choice4','typing','fill','sentence'][Math.floor(Math.random()*4)];return quizMode;}
+function renderQuizQuestion(){
+  // 오답 단어 우선 처리
+  if(quizIdx>=quizList.length){
+    if(pendingWrongWords.length>0){
+      showToast('💪 틀린 단어 다시 한 번!');
+      quizList=shuffle(pendingWrongWords.slice());
+      pendingWrongWords=[];quizIdx=0;
+      renderQuizQuestion();return;
+    }
+    showQuizResult();return;
+  }
+  var w=quizList[quizIdx];
+  var mode=getActualMode();
+  var dir=quizDir==='both'?(Math.random()<.5?'en2ko':'ko2en'):quizDir;
+  quizAnswered=false;
+  var pct=Math.round((quizIdx/quizList.length)*100);
+  var qHTML='';var bodyHTML='';
+
+  if(mode==='fill'){
+    // 스마트 빈칸: 한글 뜻 상시 노출 + 첫 글자 힌트
+    var blank=w.example?(w.example.replace(new RegExp('\\b'+w.en.replace(/[.*+?^${}()|[\]\\]/g,'\\LOGIC_PLACEHOLDER')+'\\b','gi'),'____')):'';
+    qHTML='<div class="quiz-question fill">'+(blank||w.en)+'</div>'+
+          '<div class="quiz-meaning-hint">💡 뜻: '+w.ko+'</div>'+
+          '<div class="hint-first-letter">첫 글자 힌트: '+w.en[0].toUpperCase()+'____</div>'+
+          '<div class="quiz-qtype-label">빈칸에 들어갈 영어 단어는?</div>';
+  } else if(mode==='sentence'){
+    qHTML='<div class="quiz-question ko" style="font-size:1.1rem">'+w.ko+'</div>'+
+          '<div class="quiz-qtype-label">아래 단어 조각을 순서대로 클릭해서 예문을 완성해봐!</div>';
+  } else if(dir==='en2ko'){
+    qHTML='<div class="quiz-question">'+w.en+'</div><div class="quiz-qtype-label">'+typeLabel(w.type)+' · 한국어 뜻은?</div>';
+  } else {
+    qHTML='<div class="quiz-question ko">"'+w.ko+'"</div><div class="quiz-qtype-label">영어로는?</div>';
+  }
+
+  if(mode==='choice4'){
+    var others=shuffle(words.filter(function(x){return x.id!==w.id;})).slice(0,3);
+    var options=shuffle([w].concat(others));
+    var icons=['①','②','③','④'];
+    bodyHTML='<div class="choices-grid">'+options.map(function(opt,i){
+      var label=dir==='en2ko'?opt.ko:opt.en;
+      return '<button class="choice-btn" id="ch'+i+'" onclick="answerChoice('+i+','+(opt.id===w.id)+')"><span class="choice-num">'+icons[i]+'</span>'+label+'</button>';
+    }).join('')+'</div>';
+  } else if(mode==='sentence'){
+    var sentenceWords=shuffle((w.example||w.en+' is important.').split(' '));
+    currentSentenceAnswer=[];
+    currentSentenceBank=sentenceWords.slice();
+    bodyHTML='<div class="sentence-build" id="sentenceBuild">'+
+      '<div class="sentence-answer-area" id="sentenceAnswer"><span style="color:var(--muted);font-size:.82rem">여기에 클릭해서 단어를 배치해줘</span></div>'+
+      '<div class="word-bank" id="wordBank">'+
+        sentenceWords.map(function(word,i){return '<button class="word-chip bank" onclick="addToSentence(\''+word.replace(/'/g,"\\'")+'\','+i+',this)">'+word+'</button>';}).join('')+
+      '</div>'+
+      '<button class="btn btn-primary" onclick="checkSentence(\''+w.en.replace(/'/g,"\\'")+'\')">확인 →</button>'+
+    '</div>';
+  } else {
+    var ph=(mode==='fill'||dir==='ko2en')?'영어 단어 입력...':'한국어 뜻 입력...';
+    bodyHTML='<div class="typing-area">'+
+      '<input class="typing-input" id="typingInput" placeholder="'+ph+'" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key===\'Enter\')checkTyping()">'+
+      '<button class="btn btn-primary" onclick="checkTyping()">확인 →</button>'+
+      '</div>'+
+      '<input type="hidden" id="qDir" value="'+dir+'">'+
+      '<input type="hidden" id="qMode" value="'+mode+'">'+
+      '<input type="hidden" id="qEn" value="'+w.en.replace(/"/g,'&quot;')+'">'+
+      '<input type="hidden" id="qKo" value="'+w.ko.replace(/"/g,'&quot;')+'">';
+  }
+
+  document.getElementById('quizContent').innerHTML=
+    '<div class="quiz-game">'+
+      '<div class="quiz-topbar">'+
+        '<div class="quiz-score-row">'+
+          '<div class="q-badge correct">✓ '+quizCorrect+'</div>'+
+          '<div class="q-badge wrong">✗ '+quizWrong+'</div>'+
+          (combo>=2?'<div class="q-badge combo">🔥 '+combo+'콤보</div>':'')+
+        '</div>'+
+        '<button class="btn btn-secondary" style="padding:5px 12px;font-size:.75rem" onclick="renderQuizSetup()">그만하기</button>'+
+      '</div>'+
+      '<div class="progress-bar-wrap"><div class="progress-info"><span>'+(quizIdx+1)+'/'+quizList.length+'</span><span>'+pct+'%</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div></div>'+
+      '<div class="quiz-qbox"><div class="quiz-qnum">문제 '+(quizIdx+1)+'</div>'+qHTML+'</div>'+
+      bodyHTML+
+      '<div class="result-feedback" id="resultFeedback"></div>'+
+      '<div id="nextBtnArea"></div>'+
+    '</div>';
+
+  if(mode!=='choice4'&&mode!=='sentence') setTimeout(function(){var el=document.getElementById('typingInput');if(el)el.focus();},80);
+  if(mode!=='sentence') speakWord(w.en);
+}
+
+// ── 문장 완성 퀴즈 ──
+function addToSentence(word,idx,btn){
+  if(btn.classList.contains('placed')) return;
+  currentSentenceAnswer.push({word:word,idx:idx,btn:btn});
+  btn.classList.remove('bank');btn.classList.add('placed');
+  var area=document.getElementById('sentenceAnswer');
+  if(area.children.length===1&&area.children[0].tagName==='SPAN') area.innerHTML='';
+  var chip=document.createElement('button');
+  chip.className='word-chip placed';chip.textContent=word;
+  (function(w,b,ch){ch.onclick=function(){
+    currentSentenceAnswer=currentSentenceAnswer.filter(function(x){return x.btn!==b;});
+    b.classList.remove('placed');b.classList.add('bank');
+    ch.remove();
+    if(!document.getElementById('sentenceAnswer').children.length)
+      document.getElementById('sentenceAnswer').innerHTML='<span style="color:var(--muted);font-size:.82rem">여기에 클릭해서 단어를 배치해줘</span>';
+  };})(word,btn,chip);
+  area.classList.add('has-content');area.appendChild(chip);
+}
+function checkSentence(correctEn){
+  var userSentence=currentSentenceAnswer.map(function(x){return x.word;}).join(' ');
+  var w=quizList[quizIdx];
+  var correct=userSentence.toLowerCase().replace(/[.,!?]/g,'')===((w.example||w.en)||'').toLowerCase().replace(/[.,!?]/g,'');
+  handleResult(correct,w.en,w.ko);
+}
+
+// ── 타이핑 ──
+function checkTyping(){
+  var input=document.getElementById('typingInput');if(!input||quizAnswered)return;
+  var dir=document.getElementById('qDir').value;
+  var mode=document.getElementById('qMode').value;
+  var en=document.getElementById('qEn').value;
+  var ko=document.getElementById('qKo').value;
+  var val=input.value.trim().toLowerCase();
+  var answer=(mode==='fill'||dir==='ko2en')?en:ko;
+  var isCorrect=val===answer.toLowerCase();
+  quizAnswered=true;input.disabled=true;
+  input.classList.add(isCorrect?'correct':'wrong');
+  handleResult(isCorrect,en,ko);
+}
+function answerChoice(idx,isCorrect){
+  if(quizAnswered)return;quizAnswered=true;
+  var btns=document.querySelectorAll('.choice-btn');
+  btns.forEach(function(b){b.disabled=true;});
+  btns[idx].classList.add(isCorrect?'correct-ans':'wrong-ans');
+  if(!isCorrect)btns.forEach(function(b){if(!b.classList.contains('wrong-ans'))b.classList.add('correct-ans');});
+  handleResult(isCorrect,quizList[quizIdx].en,quizList[quizIdx].ko);
+}
+
+function handleResult(isCorrect,en,ko){
+  spawnRipple(isCorrect);
+  if(isCorrect){quizCorrect++;combo++;maxCombo=Math.max(maxCombo,combo);if(combo>=3)showComboPop('🔥 '+combo+'콤보!');}
+  else{quizWrong++;combo=0;var wObj=quizList[quizIdx];if(!pendingWrongWords.some(function(x){return x.id===wObj.id;}))pendingWrongWords.push(wObj);}
+  var wi=words.findIndex(function(w){return w.en.toLowerCase()===en.toLowerCase();});
+  if(wi!==-1){words[wi].quizCorrect=(words[wi].quizCorrect||0)+(isCorrect?1:0);words[wi].quizWrong=(words[wi].quizWrong||0)+(isCorrect?0:1);saveWords();}
+  var xpGain=isCorrect?(combo>=5?15:combo>=3?10:5):0;
+  if(xpGain>0){addXP(xpGain);showXPPop(xpGain);}
+  if(!isCorrect)loseHeart(); else playSound('correct');
+  stats.totalAnswered++;if(isCorrect)stats.totalCorrect++;
+  stats.maxComboEver=Math.max(stats.maxComboEver||0,combo);
+  stats.memorized=words.filter(function(w){return w.memorized;}).length;
+  todayAnswered++;saveStats();checkBadges();
+  if(combo===3||combo===5||combo===10)showCheer(CHEERS_C[Math.floor(Math.random()*CHEERS_C.length)]);
+  else if(!isCorrect&&Math.random()<0.4)showCheer(CHEERS_W[Math.floor(Math.random()*CHEERS_W.length)]);
+  updateAll();
+  if(isCorrect){showResultPopup(true,en,ko);setTimeout(function(){closePopup();nextQuestion();},650);}
+  else{showResultPopup(false,en,ko);}
+}
+function closePopup(){var p=document.getElementById('resultPopup');if(p){p.style.animation='slideDown .2s ease';setTimeout(function(){if(p.parentNode)p.remove();},180);}}
+function showResultPopup(isCorrect,en,ko){
+  var existing=document.getElementById('resultPopup');if(existing)existing.remove();
+  var isLast=(quizIdx+1>=quizList.length&&pendingWrongWords.length===0);
+  var bg=isCorrect?'#dcfce7':'#fee2e2';
+  var border=isCorrect?'#22c55e':'#ef4444';
+  var tc=isCorrect?'#15803d':'#b91c1c';
+  var comboText=isCorrect&&combo>=3?'\uD83D\uDD25 '+combo+'\ucf64\ubcf4! \ub300\ubc15!!':'';
+  var icon=isCorrect?(comboText||'\u2705 \uc815\ub2f5!'):'\u274C \ud2c0\ub838\uc5b4~';
+  var enEsc=en.replace(/'/g,"\\'");
+  var pop=document.createElement('div');
+  pop.id='resultPopup';
+  pop.setAttribute('style','position:fixed;bottom:0;left:0;right:0;z-index:300;background:'+bg+';border-top:3px solid '+border+';padding:14px 18px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -6px 28px rgba(0,0,0,.13);animation:slideUp .22s ease;flex-wrap:wrap;');
+  var mainContent='<div style="flex:1;min-width:140px">'+
+    '<div style="font-size:1.15rem;font-weight:900;color:'+tc+'">'+icon+'</div>'+
+    (isCorrect?'':'<div style="font-size:1rem;font-weight:900;margin-top:3px;color:#b91c1c">'+en+' = '+ko+'</div>')+
+  '</div>';
+  var srsHTML=isCorrect?
+    '<button onclick="applyQuizSRS(\''+enEsc+'\',7);closePopup()" style="padding:9px 14px;border-radius:50px;border:1.5px solid #bbf7d0;background:#dcfce7;color:#15803d;font-weight:800;font-size:.78rem;cursor:pointer">\uD83D\uDE0A 7\uc77c</button>'+
+    '<button onclick="applyQuizSRS(\''+enEsc+'\',3);closePopup()" style="padding:9px 14px;border-radius:50px;border:1.5px solid #fde68a;background:#fef3c7;color:#d97706;font-weight:800;font-size:.78rem;cursor:pointer">\uD83D\uDE42 3\uc77c</button>'+
+    '<button onclick="applyQuizSRS(\''+enEsc+'\',1);closePopup()" style="padding:9px 14px;border-radius:50px;border:1.5px solid #fecaca;background:#fee2e2;color:#b91c1c;font-weight:800;font-size:.78rem;cursor:pointer">\uD83D\uDE13 1\uc77c</button>'
+    :'';
+  var nextLabel=isLast?'\uacb0\uacfc \uBCF4\uAE30 \uD83C\uDFC6':'\ub2e4\uc74c \u2192';
+  var nextColor=isCorrect?'#22c55e':'#ef4444';
+  var btnArea='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+srsHTML+
+    '<button onclick="closePopup();nextQuestion()" style="padding:12px 22px;border-radius:50px;border:none;background:'+nextColor+';color:white;font-weight:900;font-size:.95rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.13)">'+nextLabel+'</button>'+
+  '</div>';
+  pop.innerHTML=mainContent+btnArea;
+  document.body.appendChild(pop);
+}
+function applyQuizSRS(en,days){
+  var i=words.findIndex(function(w){return w.en.toLowerCase()===en.toLowerCase();});
+  if(i!==-1){var d=new Date();d.setDate(d.getDate()+days);words[i].nextReview=d.toISOString().slice(0,10);saveWords();}
+  nextQuestion();
+}
+function nextQuestion(){closePopup();quizIdx++;renderQuizQuestion();}
+function showQuizResult(){if(sessionHeartLost===0&&quizCorrect>0){stats.perfectRuns=(stats.perfectRuns||0)+1;saveStats();}sessionHeartLost=0;hearts=maxHearts;renderHearts();
+  recordSession(quizCorrect,quizWrong);
+  var total=quizCorrect+quizWrong;
+  var pct=total>0?Math.round((quizCorrect/total)*100):0;
+  var trophy=pct>=90?'🏆':pct>=70?'🥈':pct>=50?'🥉':'💪';
+  var msg=pct>=90?'완벽해! 천재다!':pct>=70?'잘했어! 조금만 더!':pct>=50?'절반 성공! 다시 해봐!':'포기하지 마! 다시 도전!';
+  var wrongWords90=words.filter(function(w){var t=(w.quizCorrect||0)+(w.quizWrong||0);return t>0&&Math.round((w.quizCorrect||0)/t*100)<90;});
+  var wrongWords80=words.filter(function(w){var t=(w.quizCorrect||0)+(w.quizWrong||0);return t>0&&Math.round((w.quizCorrect||0)/t*100)<80;});
+  var wrongWords70=words.filter(function(w){var t=(w.quizCorrect||0)+(w.quizWrong||0);return t>0&&Math.round((w.quizCorrect||0)/t*100)<70;});
+  document.getElementById('quizContent').innerHTML=
+    '<div class="quiz-result">'+
+      '<div class="result-trophy">'+trophy+'</div><div class="result-title">'+msg+'</div>'+
+      '<div class="result-score">'+pct+'점</div>'+
+      '<div class="result-stats">'+
+        '<div class="r-stat"><div class="r-stat-val" style="color:var(--green)">'+quizCorrect+'</div><div class="r-stat-lbl">정답</div></div>'+
+        '<div class="r-stat"><div class="r-stat-val" style="color:var(--red)">'+quizWrong+'</div><div class="r-stat-lbl">오답</div></div>'+
+        '<div class="r-stat"><div class="r-stat-val" style="color:var(--yellow)">'+maxCombo+'</div><div class="r-stat-lbl">최고콤보</div></div>'+
+        '<div class="r-stat"><div class="r-stat-val" style="color:var(--blue)">'+total+'</div><div class="r-stat-lbl">총문제</div></div>'+
+      '</div>'+
+      '<div class="result-btns">'+
+        '<button class="btn btn-primary" onclick="startQuiz()">🔄 다시</button>'+
+        '<button class="btn btn-purple" onclick="startWrongOnly()">📝 오답만</button>'+
+        '<button class="btn btn-secondary" onclick="renderQuizSetup()">⚙️ 설정</button>'+
+      '</div>'+
+      (wrongWords90.length>=2||wrongWords80.length>=2||wrongWords70.length>=2?
+        '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">'+
+          '<p style="font-size:.8rem;font-weight:800;color:var(--text2);margin-bottom:9px;">📋 재시험 기준 선택</p>'+
+          '<div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center">'+
+            (wrongWords90.length>=2?'<button class="btn btn-orange" style="font-size:.8rem;padding:9px 16px" onclick="startRetestBelow(90)">90점 미만 재시험 ('+wrongWords90.length+'개)</button>':'')+ 
+            (wrongWords80.length>=2?'<button class="btn btn-orange" style="font-size:.8rem;padding:9px 16px" onclick="startRetestBelow(80)">80점 미만 재시험 ('+wrongWords80.length+'개)</button>':'')+ 
+            (wrongWords70.length>=2?'<button class="btn btn-orange" style="font-size:.8rem;padding:9px 16px" onclick="startRetestBelow(70)">70점 미만 재시험 ('+wrongWords70.length+'개)</button>':'')+ 
+          '</div>'+
+        '</div>'
+      :'')+
+    '</div>';
+}
+function startRetestBelow(threshold){var pool=words.filter(function(w){var t=(w.quizCorrect||0)+(w.quizWrong||0);return t>0&&Math.round((w.quizCorrect||0)/t*100)<threshold;});if(pool.length<2){showToast('해당 단어가 너무 적어!');return;}quizList=shuffle(pool.slice());quizIdx=0;quizCorrect=0;quizWrong=0;combo=0;maxCombo=0;pendingWrongWords=[];renderQuizQuestion();}
+function startWrongOnly(){
+  var wrong=words.filter(function(w){return (w.quizWrong||0)>0;});
+  if(wrong.length<2){showToast('오답 단어가 너무 적어!');return;}
+  quizList=shuffle(wrong.slice());quizIdx=0;quizCorrect=0;quizWrong=0;combo=0;maxCombo=0;pendingWrongWords=[];
+  renderQuizQuestion();
+}
+
+// ── STATS ──
+function renderStats(){
+  var c=document.getElementById('statsContent');
+  if(!words.length){c.innerHTML='<div class="empty-state"><div class="emoji">📊</div><h3>아직 데이터가 없어!</h3></div>';return;}
+  var total=words.length;var mem=words.filter(function(w){return w.memorized;}).length;
+  var qTot=words.reduce(function(s,w){return s+(w.quizCorrect||0)+(w.quizWrong||0);},0);
+  var qCor=words.reduce(function(s,w){return s+(w.quizCorrect||0);},0);
+  var acc=qTot>0?Math.round(qCor/qTot*100):0;
+  var streak=getStreak();
+  var sessions=JSON.parse(localStorage.getItem('doeun-sessions')||'[]');
+  var todaySess=sessions.filter(function(s){return s.date===todayStr();}).length;
+  var wrongWords=words.filter(function(w){return (w.quizWrong||0)>0;}).sort(function(a,b){return (b.quizWrong||0)-(a.quizWrong||0);}).slice(0,12);
+  var attempted=words.filter(function(w){return ((w.quizCorrect||0)+(w.quizWrong||0))>0;})
+    .map(function(w){var t=(w.quizCorrect||0)+(w.quizWrong||0);return{en:w.en,ko:w.ko,pct:Math.round((w.quizCorrect||0)/t*100),total:t,qc:w.quizCorrect||0};})
+    .sort(function(a,b){return a.pct-b.pct;}).slice(0,20);
+  var last7=getLast7(sessions);var memPct=total?Math.round(mem/total*100):0;
+  var lv=getLevel(mem);
+  c.innerHTML=
+    '<div class="stats-hero">'+
+      '<div class="hero-card c-blue"><div class="hero-val" style="color:var(--blue)">'+total+'</div><div class="hero-lbl">전체</div></div>'+
+      '<div class="hero-card c-green"><div class="hero-val" style="color:var(--green)">'+mem+'</div><div class="hero-lbl">암기완료</div></div>'+
+      '<div class="hero-card c-yellow"><div class="hero-val" style="color:var(--yellow)">'+acc+'%</div><div class="hero-lbl">정답률</div></div>'+
+      '<div class="hero-card c-red"><div class="hero-val" style="color:var(--red)">'+wrongWords.length+'</div><div class="hero-lbl">틀린단어</div></div>'+
+      '<div class="hero-card c-purple"><div class="hero-val" style="color:var(--purple)">'+streak+'일</div><div class="hero-lbl">연속학습</div></div>'+
+    '</div>'+
+    '<div class="level-progress-wrap">'+
+      '<div class="level-info"><div class="level-name">'+lv.emoji+' '+lv.name+'</div><div class="level-next">'+mem+'/100 암기 · 마스터까지 '+(100-Math.min(mem,100))+'개</div></div>'+
+      '<div class="level-bar"><div class="level-fill" style="width:'+Math.min(mem,100)+'%;background:linear-gradient(90deg,'+lv.color+',var(--purple))"></div></div>'+
+    '</div>'+
+    '<div style="background:var(--white);border-radius:var(--radius);padding:18px;border:1px solid var(--border);margin-bottom:12px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:8px"><span>암기 진행률</span><span>'+mem+'/'+total+'</span></div>'+
+      '<div style="height:11px;background:var(--surface2);border-radius:50px;overflow:hidden"><div style="height:100%;width:'+memPct+'%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:50px"></div></div>'+
+      '<div style="font-size:.72rem;color:var(--muted);margin-top:5px">'+memPct+'% 완료 · +'+(total-mem)+'개 남음</div>'+
+    '</div>'+
+    '<div class="stats-section-title">📅 최근 7일</div>'+
+    '<div style="background:var(--white);border-radius:var(--radius);padding:16px;border:1px solid var(--border);margin-bottom:5px">'+
+      '<div class="mini-chart">'+last7.map(function(d){return '<div class="chart-bar-wrap"><div class="chart-bar" style="height:'+d.pct+'%;background:'+(d.count>0?'linear-gradient(180deg,var(--blue),var(--purple))':'var(--surface2)')+'"></div><div class="chart-lbl">'+d.label+'</div></div>';}).join('')+'</div>'+
+      '<div style="font-size:.72rem;color:var(--muted);margin-top:6px">오늘 '+todaySess+'회 퀴즈 풀었어</div>'+
+    '</div>'+
+    (wrongWords.length?
+      '<div class="stats-section-title">❌ 오답 노트</div>'+
+      '<div class="wrong-grid">'+wrongWords.map(function(w){return '<div class="wrong-card"><div class="wc-badge">✗ '+w.quizWrong+'회</div><div class="wc-en">'+w.en+'</div><div class="wc-ko">'+w.ko+'</div><div class="wc-stat">정답 '+(w.quizCorrect||0)+'회 · 오답 '+w.quizWrong+'회</div></div>';}).join('')+'</div>'+
+      '<div style="margin-top:12px"><button class="btn btn-purple" onclick="startWrongOnlyFromStats()">📝 오답 퀴즈</button></div>'
+      :'<div style="background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);border-radius:14px;padding:16px;text-align:center;color:var(--green);font-weight:800;margin-top:14px">🎉 오답 없음!</div>'
+    )+
+    (attempted.length?
+      '<div class="stats-section-title">🎯 단어별 정답률</div>'+
+      '<div class="mastery-list">'+attempted.map(function(w){var color=w.pct>=80?'var(--green)':w.pct>=50?'var(--yellow)':'var(--red)';return '<div class="mastery-row"><div class="mastery-word">'+w.en+'</div><div class="mastery-ko">'+w.ko+'</div><div class="mastery-bar-wrap"><div class="mastery-bar-fill" style="width:'+w.pct+'%;background:'+color+'"></div></div><div class="mastery-pct" style="color:'+color+'">'+w.pct+'%</div><div class="mastery-count">'+w.qc+'/'+w.total+'</div></div>';}).join('')+'</div>':''
+    )+
+    '<div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:9px;flex-wrap:wrap">'+
+      '<button class="btn btn-secondary" style="font-size:.76rem;padding:7px 14px" onclick="if(confirm(\'퀴즈 기록 초기화?\'))resetQuizStats()">🔄 퀴즈기록 초기화</button>'+
+      '<button class="btn btn-secondary" style="font-size:.76rem;padding:7px 14px" onclick="exportWords()">💾 단어 내보내기</button>'+
+    '</div>';
+}
+function resetQuizStats(){words.forEach(function(w){w.quizCorrect=0;w.quizWrong=0;});localStorage.removeItem('doeun-sessions');saveWords();updateAll();renderStats();showToast('🔄 초기화!');}
+function exportWords(){
+  var data=JSON.stringify(words.map(function(w){return{en:w.en,type:w.type,ko:w.ko,example:w.example,example_ko:w.example_ko};}),null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='doeun-words-'+todayStr()+'.json';a.click();
+  showToast('💾 저장!');
+}
+function startWrongOnlyFromStats(){gotoTab('quiz');setTimeout(function(){startWrongOnly();},100);}
+
+// ── COMBO & RIPPLE ──
+function showComboPop(text){
+  var el=document.getElementById('comboPop');el.textContent=text;el.className='combo-pop show';
+  setTimeout(function(){el.className='combo-pop hide';},900);setTimeout(function(){el.className='combo-pop';},1300);
+}
+function spawnRipple(isCorrect){
+  var el=document.createElement('div');el.className='ripple '+(isCorrect?'correct':'wrong');
+  el.style.top=(window.innerHeight/2)+'px';el.style.left=(window.innerWidth/2)+'px';
+  document.body.appendChild(el);setTimeout(function(){el.remove();},600);
+}
+
+// ── SRS / SESSION ──
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function recordSession(correct,wrong){
+  var sessions=JSON.parse(localStorage.getItem('doeun-sessions')||'[]');
+  sessions.push({date:todayStr(),correct:correct,wrong:wrong,ts:Date.now()});
+  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-90);
+  sessions=sessions.filter(function(s){return new Date(s.date)>=cutoff;});
+  localStorage.setItem('doeun-sessions',JSON.stringify(sessions));
+}
+function getStreak(){
+  var sessions=JSON.parse(localStorage.getItem('doeun-sessions')||'[]');
+  if(!sessions.length)return 0;
+  var dates=sessions.map(function(s){return s.date;});
+  dates=dates.filter(function(v,i,a){return a.indexOf(v)===i;}).sort().reverse();
+  var streak=0;var check=new Date();
+  for(var i=0;i<dates.length;i++){
+    var ds=check.toISOString().slice(0,10);
+    if(dates[i]===ds){streak++;check.setDate(check.getDate()-1);}
+    else if(streak===0){var y=new Date();y.setDate(y.getDate()-1);if(dates[i]===y.toISOString().slice(0,10)){streak++;check.setDate(check.getDate()-2);}else break;}
+    else break;
+  }
+  return streak;
+}
+function getLast7(sessions){
+  var result=[];
+  for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().slice(0,10);var label=i===0?'오늘':['일','월','화','수','목','금','토'][d.getDay()];var count=sessions.filter(function(s){return s.date===ds;}).length;result.push({label:label,count:count,pct:0});}
+  var max=Math.max.apply(null,result.map(function(r){return r.count;}).concat([1]));
+  result.forEach(function(r){r.pct=Math.round((r.count/max)*100);});return result;
+}
+
+// ── UTILS ──
+function shuffle(arr){return arr.slice().sort(function(){return Math.random()-.5;});}
+function saveWords(){localStorage.setItem('doeun-words',JSON.stringify(words));}
+function updateAll(){
+  var mem=words.filter(function(w){return w.memorized;}).length;
+  document.getElementById('totalCount').textContent=words.length;
+  document.getElementById('memCount').textContent=mem;
+  var tot=words.reduce(function(s,w){return s+(w.quizCorrect||0)+(w.quizWrong||0);},0);
+  var cor=words.reduce(function(s,w){return s+(w.quizCorrect||0);},0);
+  document.getElementById('accCount').textContent=tot>0?Math.round(cor/tot*100)+'%':'-';
+  var streak=getStreak();
+  document.getElementById('streakBadge').textContent='🔥 '+streak+'일';
+  var lv=getLevel(mem);
+  var lb=document.getElementById('levelBadge');
+  lb.textContent=lv.emoji+' '+lv.name;lb.style.color=lv.color;lb.style.borderColor=lv.border;
+  renderHearts();updateXPBar();updateStreakBadge();
+}
+var toastTimer;
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},3000);}
+
+// ── INIT ──
+var _it=document.getElementById('itab-json');if(_it)selectImportTab('json',_it);
+updateAll();
+updateApiKeyStatus();
+renderHome();
+
+
+function toggleImportant(en){var i=words.findIndex(function(w){return w.en.toLowerCase()===en.toLowerCase();});if(i!==-1){words[i].important=!words[i].important;saveWords();showToast(words[i].important?"⭐ 중요!":"☆ 해제");return words[i].important;}return false;}
+function closePopup(){var p=document.getElementById("resultPopup");if(p){p.style.animation="slideDown .2s ease";setTimeout(function(){if(p.parentNode)p.remove();},180);}}
+function showResultPopup(isCorrect,en,ko){
+  var existing=document.getElementById("resultPopup");if(existing)existing.remove();
+  var isLast=(quizIdx+1>=quizList.length&&pendingWrongWords.length===0);
+  var bg=isCorrect?"#dcfce7":"#fee2e2";
+  var brd=isCorrect?"#22c55e":"#ef4444";
+  var tc=isCorrect?"#15803d":"#b91c1c";
+  var icon=isCorrect?(combo>=3?"🔥 "+combo+"콤보!":"✅ 정답!"):"❌ 틀렸어~";
+  var wi=words.findIndex(function(w){return w.en.toLowerCase()===en.toLowerCase();});
+  var isImp=wi!==-1&&words[wi].important;
+  var pop=document.createElement("div");
+  pop.id="resultPopup";
+  pop.dataset.en=en;
+  pop.setAttribute("style","position:fixed;bottom:0;left:0;right:0;z-index:300;background:"+bg+";border-top:3px solid "+brd+";padding:14px 16px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -6px 28px rgba(0,0,0,.13);animation:slideUp .22s ease;flex-wrap:wrap;");
+  var wrong_html=isCorrect?"":"<div style=\"font-size:.95rem;font-weight:900;margin-top:3px;color:#b91c1c\">"+en+" = "+ko+"</div>";
+  var nextLabel=isLast?"결과 보기 🏆":"다음 →";
+  var nextBg=isCorrect?"#22c55e":"#ef4444";
+  pop.innerHTML=
+    "<div style=\"flex:1;min-width:120px\"><div style=\"font-size:1.1rem;font-weight:900;color:"+tc+"\">"+icon+"</div>"+wrong_html+"</div>"+
+    "<div style=\"display:flex;gap:8px;align-items:center;flex-wrap:wrap\">"+
+      "<button id=\"impBtn\" style=\"padding:9px 14px;border-radius:50px;font-weight:800;font-size:.8rem;cursor:pointer;border:1.5px solid "+(isImp?"#fde68a":"#e2e8ff")+";background:"+(isImp?"#fef3c7":"#fff")+";color:"+(isImp?"#d97706":"#aaa")+"\">"+( isImp?"⭐ 중요":"☆ 중요")+"</button>"+
+      "<button onclick=\"closePopup();nextQuestion()\" style=\"padding:12px 22px;border-radius:50px;border:none;background:"+nextBg+";color:white;font-weight:900;font-size:.95rem;cursor:pointer\">"+nextLabel+"</button>"+
+    "</div>";
+  var impBtn=pop.querySelector("#impBtn");
+  impBtn.addEventListener("click",function(){
+    var nowImp=toggleImportant(en);
+    impBtn.textContent=nowImp?"⭐ 중요":"☆ 중요";
+    impBtn.style.borderColor=nowImp?"#fde68a":"#e2e8ff";
+    impBtn.style.background=nowImp?"#fef3c7":"#fff";
+    impBtn.style.color=nowImp?"#d97706":"#aaa";
+  });
+  document.body.appendChild(pop);
+}
+
+function renderHearts(){var el=document.getElementById('heartsBar');if(!el)return;el.innerHTML=Array.from({length:maxHearts},function(_,i){return '<span class="heart'+(i>=hearts?' empty':'')+'">❤️</span>';}).join('');}
+function loseHeart(){if(hearts>0){hearts--;sessionHeartLost++;renderHearts();playSound('wrong');}if(hearts===0)showToast('목숨 없음! 퀴즈 끝나면 회복');}
+function addXP(n){xp+=n;stats.xp=xp;localStorage.setItem('dv-xp',xp);updateXPBar();}
+function updateXPBar(){var el=document.getElementById('xpFill');var lb=document.getElementById('xpLabel');if(el)el.style.width=(xp%100)+'%';if(lb)lb.textContent=xp+'XP';}
+function updateStreakBadge(){var s=document.getElementById('streakBadge');if(s)s.textContent='🔥 '+getStreak()+'일';}
+function showXPPop(n){var p=document.createElement('div');p.style.cssText='position:fixed;font-size:1.1rem;font-weight:900;color:#c084b8;z-index:400;pointer-events:none;animation:xpFloat 1.1s ease forwards;top:'+(window.innerHeight*.45)+'px;left:'+(window.innerWidth*.6)+'px';p.textContent='+'+n+' XP';document.body.appendChild(p);setTimeout(function(){p.remove();},1200);}
+function showCheer(msg){var el=document.getElementById('cheerPop');if(!el)return;el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},1800);}
+function saveStats(){localStorage.setItem('dv-stats',JSON.stringify(stats));}
+function checkBadges(){var n=[];BADGES.forEach(function(b){if(earnedBadges.indexOf(b.id)===-1&&b.check(stats)){earnedBadges.push(b.id);n.push(b);}});localStorage.setItem('dv-badges',JSON.stringify(earnedBadges));if(n.length)setTimeout(function(){showBadgeUnlock(n[0]);},600);}
+function showBadgeUnlock(b){var ov=document.createElement('div');ov.className='levelup-overlay';ov.innerHTML='<div class="levelup-card"><div style="font-size:3.5rem;margin-bottom:10px">'+b.icon+'</div><div style="font-size:1.4rem;font-weight:900;margin-bottom:5px">뱃지 획득!</div><div style="font-size:1.1rem;font-weight:900;color:#c084b8;margin-bottom:16px">'+b.name+'</div><button class="btn btn-primary" onclick="this.closest(\'div.levelup-overlay\').remove()" style="width:100%;justify-content:center">확인!</button></div>';document.body.appendChild(ov);playSound('levelup');}
+function showBadges(){var ov=document.createElement('div');ov.className='levelup-overlay';ov.onclick=function(e){if(e.target===ov)ov.remove();};var grid=BADGES.map(function(b){var e=earnedBadges.indexOf(b.id)!==-1;return '<div class="badge-item'+(e?'':' locked')+'"><div class="badge-icon">'+b.icon+'</div><div class="badge-name">'+b.name+'</div></div>';}).join('');ov.innerHTML='<div class="levelup-card" style="max-width:380px"><div style="font-size:1.2rem;font-weight:900;margin-bottom:14px">🏅 뱃지 ('+earnedBadges.length+'/'+BADGES.length+')</div><div class="badges-grid" style="margin-bottom:18px">'+grid+'</div><button class="btn btn-secondary" onclick="this.closest(\'div.levelup-overlay\').remove()" style="width:100%;justify-content:center">닫기</button></div>';document.body.appendChild(ov);}
+function toggleImportant(en){var i=words.findIndex(function(w){return w.en.toLowerCase()===en.toLowerCase();});if(i!==-1){words[i].important=!words[i].important;saveWords();showToast(words[i].important?'⭐ 중요!':'☆ 해제');return words[i].important;}return false;}
+function closePopup(){var p=document.getElementById('resultPopup');if(p){p.style.animation='slideDown .2s ease';setTimeout(function(){if(p.parentNode)p.remove();},180);}}
+function nextQuestion(){closePopup();quizIdx++;renderQuizQuestion();}
+function showResultPopup(isCorrect,en,ko){
+  var existing=document.getElementById('resultPopup');if(existing)existing.remove();
+  var isLast=(quizIdx+1>=quizList.length&&pendingWrongWords.length===0);
+  var bg=isCorrect?'#dcfce7':'#fee2e2';
+  var brd=isCorrect?'#22c55e':'#ef4444';
+  var tc=isCorrect?'#15803d':'#b91c1c';
+  var icon=isCorrect?(combo>=3?'🔥 '+combo+'콤보!':'✅ 정답!'):'❌ 틀렸어~';
+  var wi=words.findIndex(function(w){return w.en.toLowerCase()===en.toLowerCase();});
+  var isImp=wi!==-1&&words[wi].important;
+  var pop=document.createElement('div');
+  pop.id='resultPopup';
+  pop.setAttribute('style','position:fixed;bottom:0;left:0;right:0;z-index:300;background:'+bg+';border-top:4px solid '+brd+';padding:14px 16px 28px;box-shadow:0 -8px 32px rgba(0,0,0,.15);animation:slideUp .22s ease;');
+  var wrongHtml=isCorrect?'':'<div style="font-size:1rem;font-weight:900;margin-top:4px;color:#b91c1c">'+en+' = '+ko+'</div>';
+  var nextLabel=isLast?'🏆 결과 보기':'다음 →';
+  var nextBg=isCorrect?'#22c55e':'#ef4444';
+  pop.innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
+    '<div><div style="font-size:1.15rem;font-weight:900;color:'+tc+'">'+icon+'</div>'+wrongHtml+'</div>'+
+    '<button id="impBtn" style="padding:8px 13px;border-radius:50px;font-weight:800;font-size:.78rem;cursor:pointer;border:1.5px solid '+(isImp?'#fde68a':'#e2e8ff')+';background:'+(isImp?'#fef3c7':'#fff')+';color:'+(isImp?'#d97706':'#aaa')+'">'+( isImp?'⭐ 중요':'☆ 중요')+'</button>'+
+    '</div>'+
+    '<button onclick="closePopup();nextQuestion()" style="width:100%;padding:16px;border-radius:14px;border:none;background:'+nextBg+';color:white;font-weight:900;font-size:1.15rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12)">'+nextLabel+'</button>';
+  var impBtn=pop.querySelector('#impBtn');
+  impBtn.addEventListener('click',function(){var nowImp=toggleImportant(en);impBtn.textContent=nowImp?'⭐ 중요':'☆ 중요';impBtn.style.borderColor=nowImp?'#fde68a':'#e2e8ff';impBtn.style.background=nowImp?'#fef3c7':'#fff';impBtn.style.color=nowImp?'#d97706':'#aaa';});
+  document.body.appendChild(pop);
+}
+function autoCheckTyping(){var input=document.getElementById('typingInput');if(!input||quizAnswered)return;var dir=document.getElementById('qDir').value;var mode=document.getElementById('qMode').value;var en=document.getElementById('qEn').value;var ko=document.getElementById('qKo').value;var val=input.value.trim().toLowerCase();var answer=(mode==='fill'||dir==='ko2en')?en:ko;if(val===answer.toLowerCase())setTimeout(function(){checkTyping();},80);}
+function playSound(type){try{if(!window._AC){window._AC=new(window.AudioContext||window.webkitAudioContext)();}var ctx=window._AC;if(ctx.state==='suspended')ctx.resume();var o=ctx.createOscillator();var g=ctx.createGain();o.connect(g);g.connect(ctx.destination);if(type==='correct'){o.type='sine';o.frequency.setValueAtTime(523,ctx.currentTime);o.frequency.setValueAtTime(880,ctx.currentTime+0.12);g.gain.setValueAtTime(0.18,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);o.start();o.stop(ctx.currentTime+0.35);}else if(type==='wrong'){o.type='sawtooth';o.frequency.setValueAtTime(200,ctx.currentTime);o.frequency.linearRampToValueAtTime(100,ctx.currentTime+0.2);g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);o.start();o.stop(ctx.currentTime+0.25);}else if(type==='levelup'){[440,554,659,880].forEach(function(f,i){var o2=ctx.createOscillator();var g2=ctx.createGain();o2.connect(g2);g2.connect(ctx.destination);o2.frequency.setValueAtTime(f,ctx.currentTime+i*0.1);g2.gain.setValueAtTime(0.1,ctx.currentTime+i*0.1);g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.1+0.18);o2.start(ctx.currentTime+i*0.1);o2.stop(ctx.currentTime+i*0.1+0.18);});}}catch(e){}}
+document.addEventListener('touchstart',function(){if(window._AC&&window._AC.state==='suspended')window._AC.resume();},{passive:true});
+document.addEventListener('click',function(){if(window._AC&&window._AC.state==='suspended')window._AC.resume();});
+
+</script>
+<div class="cheer-pop" id="cheerPop"></div>
+</body>
+</html>

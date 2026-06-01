@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>구구단 연습 v2</title>
+  <style>
+    :root {
+      --bg: #f7faf8;
+      --panel: #ffffff;
+      --ink: #17201c;
+      --muted: #68746e;
+      --line: #dce6e1;
+      --green: #168a5b;
+      --green-dark: #0f6b46;
+      --mint: #dff5ea;
+      --yellow: #ffe7a8;
+      --red: #e54848;
+      --shadow: 0 5px 14px rgba(23, 32, 28, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      min-height: 100svh;
+      overflow-x: hidden;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .app {
+      width: min(100%, 520px);
+      max-width: 100%;
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 10px 10px 12px;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 2px 2px 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin: 4px 0 8px;
+    }
+
+    .tab-btn, .small-btn, .number-btn, .main-btn {
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      touch-action: manipulation;
+      min-width: 0;
+    }
+
+    .tab-btn {
+      min-height: 40px;
+      background: #eaf1ee;
+      color: var(--muted);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--green);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .section-title > * {
+      min-width: 0;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .dan-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .number-btn {
+      min-height: 40px;
+      background: #edf4f0;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .number-btn.active {
+      background: var(--yellow);
+      color: #2d250b;
+      outline: 2px solid #f0c44f;
+    }
+
+    .table-list {
+      display: grid;
+      gap: 5px;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 10px;
+      background: #f8fbf9;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .answer {
+      color: var(--green-dark);
+      font-size: 18px;
+    }
+
+    .quiz-card {
+      display: grid;
+      gap: 7px;
+    }
+
+    .score-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .score-box {
+      min-height: 46px;
+      padding: 5px 4px;
+      border-radius: 8px;
+      background: #f3f7f5;
+      text-align: center;
+      border: 1px solid var(--line);
+    }
+
+    .score-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .score-value {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .problem {
+      min-height: 70px;
+      display: grid;
+      place-items: center;
+      background: var(--mint);
+      border-radius: 8px;
+      border: 1px solid #bfe9d2;
+      font-size: 32px;
+      font-weight: 950;
+      text-align: center;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 46px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 900;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .answer-input:focus {
+      outline: 3px solid rgba(22, 138, 91, 0.18);
+      border-color: var(--green);
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .keypad .number-btn {
+      min-height: 43px;
+      font-size: 19px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+    }
+
+    .main-btn {
+      min-height: 44px;
+      width: 100%;
+      background: var(--green);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+    }
+
+    .main-btn:active, .number-btn:active, .tab-btn:active, .small-btn:active {
+      transform: translateY(1px);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .small-btn {
+      min-height: 36px;
+      padding: 6px 8px;
+      background: #eef4f1;
+      color: var(--ink);
+      font-weight: 800;
+      border: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .feedback {
+      min-height: 22px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .feedback.good {
+      color: var(--green-dark);
+    }
+
+    .feedback.bad {
+      color: var(--red);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 380px), (max-height: 720px) {
+      .app {
+        padding: 8px 8px 10px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .sub {
+        display: none;
+      }
+
+      .problem {
+        min-height: 62px;
+        font-size: 29px;
+      }
+
+      .panel {
+        padding: 8px;
+      }
+
+      .dan-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .keypad .number-btn {
+        min-height: 39px;
+      }
+
+      .main-btn {
+        min-height: 40px;
+      }
+
+      .small-btn {
+        min-height: 34px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-height: 640px) {
+      header {
+        display: none;
+      }
+
+      .tabs {
+        margin-top: 0;
+      }
+
+      .score-box {
+        min-height: 40px;
+      }
+
+      .score-label {
+        margin-bottom: 0;
+      }
+
+      .problem {
+        min-height: 56px;
+        font-size: 27px;
+      }
+
+      .answer-input {
+        min-height: 40px;
+        font-size: 22px;
+        padding: 5px 10px;
+      }
+
+      .keypad .number-btn {
+        min-height: 35px;
+      }
+
+      .feedback {
+        min-height: 18px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>구구단 연습</h1>
+      <div class="sub">2단부터 9단까지 보고, 바로 퀴즈로 확인하세요.</div>
+    </header>
+
+    <nav class="tabs" aria-label="화면 선택">
+      <button class="tab-btn active" id="studyTab" type="button">구구단 보기</button>
+      <button class="tab-btn" id="quizTab" type="button">퀴즈 풀기</button>
+    </nav>
+
+    <section class="panel" id="studyView">
+      <div class="section-title">
+        <h2>외울 단 선택</h2>
+        <button class="small-btn" id="readBtn" type="button">강조</button>
+      </div>
+      <div class="dan-grid" id="studyDanButtons" aria-label="단 선택"></div>
+      <div class="table-list" id="tableList" aria-live="polite"></div>
+    </section>
+
+    <section class="panel hidden" id="quizView">
+      <div class="quiz-card">
+        <div class="section-title">
+          <h2>랜덤 퀴즈</h2>
+          <button class="small-btn" id="resetBtn" type="button">기록 초기화</button>
+        </div>
+
+        <div class="score-board" aria-label="퀴즈 점수">
+          <div class="score-box">
+            <span class="score-label">정답</span>
+            <span class="score-value" id="rightCount">0</span>
+          </div>
+          <div class="score-box">
+            <span class="score-label">오답</span>
+            <span class="score-value" id="wrongCount">0</span>
+          </div>
+          <div class="score-box">
+            <span class="score-label">연속</span>
+            <span class="score-value" id="streakCount">0</span>
+          </div>
+        </div>
+
+        <div class="problem" id="problemText">2 × 1 = ?</div>
+        <input class="answer-input" id="answerInput" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="정답 입력" readonly>
+
+        <div class="keypad" aria-label="숫자 입력">
+          <button class="number-btn" type="button" data-key="1">1</button>
+          <button class="number-btn" type="button" data-key="2">2</button>
+          <button class="number-btn" type="button" data-key="3">3</button>
+          <button class="number-btn" type="button" data-key="4">4</button>
+          <button class="number-btn" type="button" data-key="5">5</button>
+          <button class="number-btn" type="button" data-key="6">6</button>
+          <button class="number-btn" type="button" data-key="7">7</button>
+          <button class="number-btn" type="button" data-key="8">8</button>
+          <button class="number-btn" type="button" data-key="9">9</button>
+          <button class="number-btn" type="button" data-key="back">←</button>
+          <button class="number-btn" type="button" data-key="0">0</button>
+          <button class="number-btn" type="button" data-key="clear">지움</button>
+        </div>
+
+        <button class="main-btn" id="checkBtn" type="button">정답 확인</button>
+        <div class="actions">
+          <button class="small-btn" id="nextBtn" type="button">다음 문제</button>
+          <button class="small-btn" id="hintBtn" type="button">힌트</button>
+        </div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const studyView = document.getElementById("studyView");
+    const quizView = document.getElementById("quizView");
+    const studyTab = document.getElementById("studyTab");
+    const quizTab = document.getElementById("quizTab");
+    const studyDanButtons = document.getElementById("studyDanButtons");
+    const tableList = document.getElementById("tableList");
+    const readBtn = document.getElementById("readBtn");
+    const problemText = document.getElementById("problemText");
+    const answerInput = document.getElementById("answerInput");
+    const feedback = document.getElementById("feedback");
+    const checkBtn = document.getElementById("checkBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const hintBtn = document.getElementById("hintBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const rightCount = document.getElementById("rightCount");
+    const wrongCount = document.getElementById("wrongCount");
+    const streakCount = document.getElementById("streakCount");
+
+    let selectedDan = 2;
+    let currentProblem = { dan: 2, num: 1, answer: 2 };
+    let score = loadScore();
+
+    function loadScore() {
+      const saved = localStorage.getItem("gugudanScoreV1");
+      if (!saved) {
+        return { right: 0, wrong: 0, streak: 0 };
+      }
+
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          right: Number(parsed.right) || 0,
+          wrong: Number(parsed.wrong) || 0,
+          streak: Number(parsed.streak) || 0
+        };
+      } catch (error) {
+        return { right: 0, wrong: 0, streak: 0 };
+      }
+    }
+
+    function saveScore() {
+      localStorage.setItem("gugudanScoreV1", JSON.stringify(score));
+    }
+
+    function updateScoreView() {
+      rightCount.textContent = score.right;
+      wrongCount.textContent = score.wrong;
+      streakCount.textContent = score.streak;
+    }
+
+    function showView(viewName) {
+      const isStudy = viewName === "study";
+      studyView.classList.toggle("hidden", !isStudy);
+      quizView.classList.toggle("hidden", isStudy);
+      studyTab.classList.toggle("active", isStudy);
+      quizTab.classList.toggle("active", !isStudy);
+    }
+
+    function renderDanButtons() {
+      studyDanButtons.innerHTML = "";
+
+      for (let dan = 2; dan <= 9; dan += 1) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "number-btn";
+        button.textContent = dan + "단";
+        button.setAttribute("aria-label", dan + "단 보기");
+        button.addEventListener("click", () => {
+          selectedDan = dan;
+          renderDanButtons();
+          renderTable();
+        });
+
+        if (dan === selectedDan) {
+          button.classList.add("active");
+        }
+
+        studyDanButtons.appendChild(button);
+      }
+    }
+
+    function renderTable(highlightIndex) {
+      tableList.innerHTML = "";
+
+      for (let num = 1; num <= 9; num += 1) {
+        const row = document.createElement("div");
+        row.className = "table-row";
+        if (num === highlightIndex) {
+          row.style.background = "var(--yellow)";
+        }
+
+        const formula = document.createElement("span");
+        formula.textContent = selectedDan + " × " + num;
+
+        const answer = document.createElement("strong");
+        answer.className = "answer";
+        answer.textContent = selectedDan * num;
+
+        row.appendChild(formula);
+        row.appendChild(answer);
+        tableList.appendChild(row);
+      }
+    }
+
+    function makeProblem() {
+      const dan = randomNumber(2, 9);
+      const num = randomNumber(1, 9);
+      currentProblem = { dan, num, answer: dan * num };
+      problemText.textContent = dan + " × " + num + " = ?";
+      answerInput.value = "";
+      feedback.textContent = "";
+      feedback.className = "feedback";
+    }
+
+    function randomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function checkAnswer() {
+      const userAnswer = Number(answerInput.value);
+
+      if (answerInput.value.trim() === "") {
+        setFeedback("숫자를 먼저 입력하세요.", "bad");
+        return;
+      }
+
+      if (userAnswer === currentProblem.answer) {
+        score.right += 1;
+        score.streak += 1;
+        setFeedback("정답입니다!", "good");
+        saveScore();
+        updateScoreView();
+        setTimeout(makeProblem, 650);
+      } else {
+        score.wrong += 1;
+        score.streak = 0;
+        setFeedback("다시 생각해 보세요.", "bad");
+        saveScore();
+        updateScoreView();
+      }
+    }
+
+    function setFeedback(message, type) {
+      feedback.textContent = message;
+      feedback.className = "feedback " + type;
+    }
+
+    function addKey(value) {
+      if (value === "clear") {
+        answerInput.value = "";
+        return;
+      }
+
+      if (value === "back") {
+        answerInput.value = answerInput.value.slice(0, -1);
+        return;
+      }
+
+      if (answerInput.value.length < 3) {
+        answerInput.value += value;
+      }
+    }
+
+    function showHint() {
+      const { dan, num } = currentProblem;
+      setFeedback(dan + "을 " + num + "번 더하면 답이 됩니다.", "good");
+    }
+
+    function resetScore() {
+      score = { right: 0, wrong: 0, streak: 0 };
+      saveScore();
+      updateScoreView();
+      setFeedback("기록을 초기화했습니다.", "good");
+    }
+
+    function highlightTableStep() {
+      let step = 1;
+      renderTable(step);
+
+      const timer = setInterval(() => {
+        step += 1;
+        if (step > 9) {
+          clearInterval(timer);
+          renderTable();
+          return;
+        }
+        renderTable(step);
+      }, 450);
+    }
+
+    studyTab.addEventListener("click", () => showView("study"));
+    quizTab.addEventListener("click", () => showView("quiz"));
+    checkBtn.addEventListener("click", checkAnswer);
+    nextBtn.addEventListener("click", makeProblem);
+    hintBtn.addEventListener("click", showHint);
+    resetBtn.addEventListener("click", resetScore);
+    readBtn.addEventListener("click", highlightTableStep);
+
+    document.querySelectorAll("[data-key]").forEach((button) => {
+      button.addEventListener("click", () => addKey(button.dataset.key));
+    });
+
+    renderDanButtons();
+    renderTable();
+    updateScoreView();
+    makeProblem();
+  </script>
+</body>
+</html>

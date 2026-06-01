@@ -1,0 +1,1030 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>마이크 - 내 노래방</title>
+<link rel="manifest" href="data:application/json,{}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Bebas+Neue&display=swap');
+:root{
+  --bg:#0d0d14;--card:#17171f;--card2:#1e1e2a;
+  --accent:#ff4d6d;--accent2:#ff8fa3;
+  --gold:#ffd166;--silver:#b0b0c8;--bronze:#cd8050;
+  --green:#06d6a0;--blue:#48cae4;
+  --text:#f0f0f8;--muted:#6060a0;--border:#252535;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;display:flex;flex-direction:column;}
+
+/* 네비 */
+.nav{background:var(--card);border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,4px);}
+.nav-btn{flex:1;padding:10px 4px 6px;border:none;background:transparent;color:var(--muted);font-size:10px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;-webkit-user-select:none;user-select:none;}
+.nav-btn .ni{font-size:20px;line-height:1;}
+.nav-btn.active{color:var(--accent);}
+
+/* 페이지 */
+.page{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.page.active{display:flex;}
+
+/* 헤더 */
+.hdr{background:var(--card);padding:14px 14px 8px;flex-shrink:0;border-bottom:1px solid var(--border);}
+.hdr-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.hdr-title .badge{font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;letter-spacing:0;}
+
+/* 검색 */
+.search-wrap{position:relative;margin-bottom:6px;}
+.search-inp{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:8px 34px 8px 34px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.search-inp:focus{border-color:var(--accent);}
+.search-inp::placeholder{color:var(--muted);}
+.s-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);}
+.s-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);cursor:pointer;display:none;}
+
+/* 서브탭 */
+.sub-tabs{display:flex;gap:4px;margin-bottom:5px;}
+.sub-tab{flex:1;padding:6px 3px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;-webkit-user-select:none;user-select:none;}
+.sub-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* 정렬 */
+.sort-row{display:flex;gap:4px;}
+.sort-btn{padding:4px 8px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:10px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;-webkit-user-select:none;user-select:none;}
+.sort-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(255,143,163,.1);}
+
+/* 스크롤 영역 */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 10px 10px;}
+
+/* 곡 카드 */
+.song-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 11px;margin-bottom:6px;position:relative;overflow:hidden;}
+.song-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
+.song-card.done::before{background:var(--green);}
+.card-top{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;}
+.status-tog{width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.status-tog.pr{background:rgba(255,77,109,.12);color:var(--accent);}
+.status-tog.dn{background:rgba(6,214,160,.12);color:var(--green);}
+.song-ttl{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.song-art{font-size:11px;color:var(--muted);margin-top:1px;}
+.num-row{display:flex;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+.num-chip{display:flex;align-items:center;gap:2px;background:var(--card2);border-radius:5px;padding:2px 6px;font-size:11px;font-weight:700;}
+.num-chip .lbl{font-size:8px;color:var(--muted);font-weight:400;margin-right:1px;}
+.num-chip.tj{border-left:2px solid #ff6b6b;}
+.num-chip.ky{border-left:2px solid #4dabf7;}
+.num-chip.na{opacity:.35;}
+.tag-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:3px;}
+.key-tag{font-size:10px;padding:2px 6px;border-radius:5px;background:rgba(72,202,228,.1);color:var(--blue);border:1px solid rgba(72,202,228,.2);}
+.st-tag{font-size:10px;padding:2px 6px;border-radius:5px;font-weight:600;}
+.st-tag.pr{background:rgba(255,77,109,.1);color:var(--accent);border:1px solid rgba(255,77,109,.2);}
+.st-tag.dn{background:rgba(6,214,160,.1);color:var(--green);border:1px solid rgba(6,214,160,.2);}
+.memo-txt{font-size:10px;color:var(--muted);background:var(--card2);border-radius:5px;padding:3px 6px;line-height:1.4;margin-bottom:2px;}
+.card-actions{display:flex;gap:5px;margin-top:5px;}
+.act-btn{flex:1;padding:5px 3px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-size:10px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;-webkit-user-select:none;user-select:none;}
+.act-btn.fav-on{border-color:var(--gold);color:var(--gold);background:rgba(255,209,102,.08);}
+
+/* 탑100 카드 */
+.top-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:9px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.top-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;min-width:28px;text-align:center;line-height:1;}
+.top-rank.r1{color:var(--gold);}
+.top-rank.r2{color:var(--silver);}
+.top-rank.r3{color:var(--bronze);}
+.top-rank.rn{color:var(--muted);font-size:15px;}
+.top-info{flex:1;min-width:0;}
+.top-ttl{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top-art{font-size:10px;color:var(--muted);margin-top:1px;}
+.top-nums{display:flex;gap:4px;margin-top:3px;}
+.top-chip{font-size:10px;padding:2px 5px;border-radius:4px;background:var(--card2);font-weight:700;}
+.top-chip.tj{border-left:2px solid #ff6b6b;}
+.top-chip.ky{border-left:2px solid #4dabf7;}
+.top-chip .tl{font-size:8px;color:var(--muted);font-weight:400;}
+.top-btns{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.top-fav,.top-del{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;}
+.top-fav.on{border-color:var(--gold);color:var(--gold);background:rgba(255,209,102,.1);}
+.top-del{border-color:rgba(255,77,109,.3);background:rgba(255,77,109,.07);color:var(--accent);}
+
+/* 즐겨찾기 카드 */
+.fav-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:12px;padding:10px 11px;margin-bottom:6px;}
+.fav-head{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;}
+.fav-badge{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.fav-badge.tj{background:rgba(255,107,107,.15);color:#ff6b6b;}
+.fav-badge.ky{background:rgba(77,171,247,.15);color:#4dabf7;}
+.fav-badge.my{background:rgba(6,214,160,.15);color:var(--green);}
+.fav-badge.custom{background:rgba(199,125,255,.15);color:#c77dff;}
+.fav-actions{display:flex;gap:5px;margin-top:5px;}
+.fav-act{flex:1;padding:5px 3px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-size:10px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;-webkit-user-select:none;user-select:none;}
+.fav-act.edit{border-color:var(--blue);color:var(--blue);background:rgba(72,202,228,.08);}
+.fav-act.remove{border-color:rgba(255,77,109,.3);color:var(--accent);background:rgba(255,77,109,.07);}
+
+/* FAB */
+.fab-area{flex-shrink:0;padding:6px 10px 4px;display:flex;gap:6px;}
+.fab{flex:1;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-user-select:none;user-select:none;}
+.fab.json{background:var(--card2);border:1.5px solid var(--border);color:var(--muted);flex:0 0 auto;padding:11px 12px;font-size:12px;}
+
+/* 빈 상태 */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty .ei{font-size:38px;margin-bottom:8px;}
+.empty p{font-size:12px;line-height:1.6;}
+
+/* 모달 */
+.overlay{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:400;display:flex;align-items:flex-end;justify-content:center;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .25s,visibility .25s;}
+.overlay.open{visibility:visible;opacity:1;pointer-events:auto;}
+.modal{background:var(--card);border-radius:18px 18px 0 0;padding:16px 14px 30px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);border-top:1px solid var(--border);}
+.overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:32px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px;}
+.modal-ttl{font-size:16px;font-weight:700;margin-bottom:12px;}
+
+/* 폼 */
+.fg{margin-bottom:11px;}
+.fl{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:3px;display:block;letter-spacing:.5px;}
+.fi{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:9px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.fi:focus{border-color:var(--accent);}
+.fi::placeholder{color:var(--muted);}
+textarea.fi{resize:none;min-height:55px;line-height:1.4;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.key-opts{display:flex;gap:4px;margin-bottom:6px;}
+.key-opt{flex:1;padding:6px 2px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;-webkit-user-select:none;user-select:none;}
+.key-opt.active{border-color:var(--blue);color:var(--blue);background:rgba(72,202,228,.1);}
+.key-adj{display:flex;align-items:center;gap:8px;}
+.adj-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;}
+.adj-val{font-size:18px;font-weight:700;min-width:30px;text-align:center;color:var(--blue);}
+.st-opts{display:flex;gap:6px;}
+.st-opt{flex:1;padding:8px;border-radius:9px;border:1.5px solid var(--border);background:transparent;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;color:var(--muted);-webkit-user-select:none;user-select:none;}
+.st-opt.ap{border-color:var(--accent);color:var(--accent);background:rgba(255,77,109,.1);}
+.st-opt.ad{border-color:var(--green);color:var(--green);background:rgba(6,214,160,.1);}
+.rk-wrap{position:relative;}
+.rk-pre{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:14px;}
+.rk-wrap .fi{padding-left:26px;}
+.m-actions{display:flex;gap:7px;margin-top:14px;}
+.btn-del{padding:10px 12px;border-radius:10px;border:1.5px solid rgba(255,77,109,.3);background:rgba(255,77,109,.07);color:var(--accent);font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.btn-cancel{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.btn-save{flex:2;padding:10px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+
+/* JSON 모달 */
+.json-format{background:var(--card2);border-radius:8px;padding:10px;font-size:10px;color:var(--muted);line-height:1.5;border:1px solid var(--border);margin-bottom:6px;white-space:pre-wrap;word-break:break-all;}
+.json-result{padding:6px 10px;border-radius:7px;font-size:11px;margin-top:5px;}
+.json-result.err{background:rgba(255,77,109,.1);color:var(--accent);border:1px solid rgba(255,77,109,.2);}
+.jil{display:flex;flex-direction:column;gap:5px;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:6px 0;}
+.jil-item{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:9px;padding:8px 10px;border:1px solid var(--border);}
+.jil-check{width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--accent);}
+.jil-info{flex:1;min-width:0;}
+.jil-title{font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.jil-dup{font-size:9px;color:var(--gold);background:rgba(255,209,102,.1);border-radius:3px;padding:1px 4px;font-weight:600;}
+.jil-artist{font-size:10px;color:var(--muted);margin-top:1px;}
+.jil-nums{font-size:10px;color:var(--muted);margin-top:1px;}
+.sel-header{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.sel-label{font-size:11px;color:var(--muted);}
+.sel-count{font-size:11px;font-weight:700;color:var(--accent);margin-left:auto;}
+.json-btns{display:flex;gap:7px;margin-top:12px;}
+.jbtn{flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:center;-webkit-user-select:none;user-select:none;}
+.jbtn.back,.jbtn.cancel{background:transparent;border:1.5px solid var(--border);color:var(--muted);}
+.jbtn.confirm,.jbtn.parse{background:var(--accent);border:none;color:#fff;flex:2;}
+
+/* 토스트 */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--card2);color:var(--text);font-size:12px;font-weight:600;padding:8px 14px;border-radius:18px;border:1px solid var(--border);z-index:600;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- 탭1: 내 목록 -->
+<div class="page active" id="page-my">
+  <div class="hdr">
+    <div class="hdr-title">🎤 마이크 <span class="badge" id="myCount">0곡</span></div>
+    <div class="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input type="text" class="search-inp" id="mySearch" placeholder="제목, 가수 검색...">
+      <span class="s-clear" id="mySearchClear">✕</span>
+    </div>
+    <div class="sub-tabs" id="myFilters">
+      <button class="sub-tab active" data-f="all">전체</button>
+      <button class="sub-tab" data-f="practicing">🎤 연습중</button>
+      <button class="sub-tab" data-f="done">✨ 완료</button>
+    </div>
+    <div class="sort-row" id="mySorts">
+      <button class="sort-btn active" data-s="rank">🏆 순위순</button>
+      <button class="sort-btn" data-s="recent">🕐 최신순</button>
+      <button class="sort-btn" data-s="title">가나다</button>
+    </div>
+  </div>
+  <div class="scroll" id="myList"></div>
+  <div class="fab-area">
+    <button class="fab json" id="jsonImportBtn">📥 JSON</button>
+    <button class="fab" id="addBtn">＋ 새 곡 추가</button>
+  </div>
+</div>
+
+<!-- 탭2: 탑100 -->
+<div class="page" id="page-top">
+  <div class="hdr">
+    <div class="hdr-title">🏆 탑 100 <span class="badge" id="topBadge">TJ</span></div>
+    <div class="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input type="text" class="search-inp" id="topSearch" placeholder="제목, 가수 검색...">
+      <span class="s-clear" id="topSearchClear">✕</span>
+    </div>
+    <div class="sub-tabs" id="topBrands">
+      <button class="sub-tab active" data-brand="tj">TJ 미디어</button>
+      <button class="sub-tab" data-brand="ky">금영</button>
+      <button class="sub-tab" data-brand="custom">📥 추가곡</button>
+    </div>
+  </div>
+  <div class="scroll" id="topList"></div>
+</div>
+
+<!-- 탭3: 즐겨찾기 -->
+<div class="page" id="page-fav">
+  <div class="hdr">
+    <div class="hdr-title">⭐ 즐겨찾기 <span class="badge" id="favCount">0</span></div>
+    <div class="search-wrap">
+      <span class="s-icon">🔍</span>
+      <input type="text" class="search-inp" id="favSearch" placeholder="제목, 가수 검색...">
+      <span class="s-clear" id="favSearchClear">✕</span>
+    </div>
+    <div class="sort-row" id="favSorts">
+      <button class="sort-btn active" data-fs="recent">🕐 추가순</button>
+      <button class="sort-btn" data-fs="title">가나다</button>
+    </div>
+  </div>
+  <div class="scroll" id="favList"></div>
+</div>
+
+<!-- 하단 네비 -->
+<nav class="nav" id="mainNav">
+  <button class="nav-btn active" data-page="my"><span class="ni">🎵</span>내 목록</button>
+  <button class="nav-btn" data-page="top"><span class="ni">🏆</span>탑 100</button>
+  <button class="nav-btn" data-page="fav"><span class="ni">⭐</span>즐겨찾기</button>
+</nav>
+
+<!-- 내 목록 추가/수정 모달 -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" id="modalTtl">새 곡 추가</div>
+    <div class="fg"><label class="fl">노래 제목 *</label><input type="text" class="fi" id="fTitle" placeholder="예: 응급실"></div>
+    <div class="fg"><label class="fl">가수명 *</label><input type="text" class="fi" id="fArtist" placeholder="예: izi"></div>
+    <div class="frow fg">
+      <div><label class="fl">TJ 번호</label><input type="number" class="fi" id="fTj" placeholder="14512"></div>
+      <div><label class="fl">금영 번호</label><input type="number" class="fi" id="fKy" placeholder="9489"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">키 설정</label>
+      <div class="key-opts" id="keyOpts">
+        <button class="key-opt active" data-k="male">👨 남성키</button>
+        <button class="key-opt" data-k="female">👩 여성키</button>
+        <button class="key-opt" data-k="original">원키</button>
+      </div>
+      <div class="key-adj">
+        <button class="adj-btn" id="keyMinus">−</button>
+        <div class="adj-val" id="keyVal">0</div>
+        <button class="adj-btn" id="keyPlus">＋</button>
+        <span style="font-size:10px;color:var(--muted)">반음</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">상태</label>
+      <div class="st-opts">
+        <button class="st-opt ap" id="stPr">🎤 연습중</button>
+        <button class="st-opt" id="stDn">✨ 완료</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">나의 인기 순위</label>
+      <div class="rk-wrap"><span class="rk-pre">🏆</span><input type="number" class="fi" id="fRank" min="1" placeholder="1"></div>
+    </div>
+    <div class="fg"><label class="fl">메모</label><textarea class="fi" id="fMemo" placeholder="도입부 박자 주의..."></textarea></div>
+    <div class="m-actions">
+      <button class="btn-del" id="delBtn" style="display:none">🗑</button>
+      <button class="btn-cancel" id="cancelBtn">취소</button>
+      <button class="btn-save" id="saveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 즐겨찾기 수정 모달 -->
+<div class="overlay" id="favOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl">⭐ 즐겨찾기 수정</div>
+    <div class="fg"><label class="fl">노래 제목</label><input type="text" class="fi" id="efTitle"></div>
+    <div class="fg"><label class="fl">가수명</label><input type="text" class="fi" id="efArtist"></div>
+    <div class="frow fg">
+      <div><label class="fl">TJ 번호</label><input type="number" class="fi" id="efTj"></div>
+      <div><label class="fl">금영 번호</label><input type="number" class="fi" id="efKy"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">키 설정</label>
+      <div class="key-opts" id="efKeyOpts">
+        <button class="key-opt active" data-ek="male">👨 남성키</button>
+        <button class="key-opt" data-ek="female">👩 여성키</button>
+        <button class="key-opt" data-ek="original">원키</button>
+      </div>
+      <div class="key-adj">
+        <button class="adj-btn" id="efKeyMinus">−</button>
+        <div class="adj-val" id="efKeyVal">0</div>
+        <button class="adj-btn" id="efKeyPlus">＋</button>
+        <span style="font-size:10px;color:var(--muted)">반음</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">상태</label>
+      <div class="st-opts">
+        <button class="st-opt ap" id="efStPr">🎤 연습중</button>
+        <button class="st-opt" id="efStDn">✨ 완료</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">나의 순위</label>
+      <div class="rk-wrap"><span class="rk-pre">🏆</span><input type="number" class="fi" id="efRank" min="1" placeholder="1"></div>
+    </div>
+    <div class="fg"><label class="fl">메모</label><textarea class="fi" id="efMemo" placeholder="박자 주의..."></textarea></div>
+    <div class="m-actions">
+      <button class="btn-cancel" id="efCancelBtn">취소</button>
+      <button class="btn-save" id="efSaveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- JSON 모달 -->
+<div class="overlay" id="jsonOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="jsonStep1">
+      <div class="modal-ttl">📥 JSON으로 곡 가져오기</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">아래 양식으로 JSON을 붙여넣으세요.</div>
+      <div class="json-format">[
+  {
+    "title": "응급실",
+    "artist": "izi",
+    "tj": "14512",
+    "ky": "9489",
+    "rank": 1,
+    "memo": "고음 지르기용"
+  }
+]</div>
+      <div class="fg">
+        <label class="fl">JSON 붙여넣기</label>
+        <textarea class="fi" id="jsonInput" style="min-height:100px;font-size:11px" placeholder='[ { "title": "...", "artist": "..." } ]'></textarea>
+      </div>
+      <div id="jsonResult" style="display:none" class="json-result"></div>
+      <div class="json-btns">
+        <button class="jbtn cancel" id="jsonCancelBtn">취소</button>
+        <button class="jbtn parse" id="jsonParseBtn">확인 →</button>
+      </div>
+    </div>
+    <div id="jsonStep2" style="display:none">
+      <div class="modal-ttl" id="jsonStep2Ttl">가져올 곡 선택</div>
+      <div class="sel-header">
+        <input type="checkbox" id="selAll" checked style="width:16px;height:16px;accent-color:var(--accent)">
+        <label for="selAll" class="sel-label">전체 선택</label>
+        <span class="sel-count" id="selCount">0곡</span>
+      </div>
+      <div class="jil" id="jsonImportList"></div>
+      <div class="json-btns">
+        <button class="jbtn back" id="jsonBackBtn">← 뒤로</button>
+        <button class="jbtn confirm" id="jsonConfirmBtn">추가하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+var MY_KEY='mk_my_v1', FAV_KEY='mk_fav_v1', CUSTOM_KEY='mk_cust_v1', FAVEDIT_KEY='mk_fe_v1';
+
+var TJ100=[
+{rank:1,title:'응급실',artist:'izi',tj:'14512',ky:'9489'},
+{rank:2,title:'사랑했잖아',artist:'임창정',tj:'3512',ky:'4521'},
+{rank:3,title:'에필로그',artist:'임창정',tj:'28560',ky:'44231'},
+{rank:4,title:'소주 한 잔',artist:'임창정',tj:'21934',ky:'33291'},
+{rank:5,title:'Ditto',artist:'NewJeans',tj:'81111',ky:'28655'},
+{rank:6,title:'Hype Boy',artist:'NewJeans',tj:'80200',ky:'28100'},
+{rank:7,title:'OMG',artist:'NewJeans',tj:'81500',ky:'29000'},
+{rank:8,title:'After LIKE',artist:'IVE',tj:'79800',ky:'27900'},
+{rank:9,title:'LOVE DIVE',artist:'IVE',tj:'77700',ky:'27200'},
+{rank:10,title:'Attention',artist:'NewJeans',tj:'80201',ky:'28101'},
+{rank:11,title:'ANTIFRAGILE',artist:'LE SSERAFIM',tj:'80500',ky:'28300'},
+{rank:12,title:'FEARLESS',artist:'LE SSERAFIM',tj:'78900',ky:'27600'},
+{rank:13,title:'Pink Venom',artist:'BLACKPINK',tj:'80100',ky:'28050'},
+{rank:14,title:'셧다운',artist:'BLACKPINK',tj:'79200',ky:'27700'},
+{rank:15,title:'LIAR',artist:'ZICO',tj:'40210',ky:'15800'},
+{rank:16,title:'새삥',artist:'ZICO',tj:'82100',ky:'29200'},
+{rank:17,title:'그냥 살기로 했어',artist:'이찬원',tj:'79500',ky:'27850'},
+{rank:18,title:'진또배기',artist:'이찬원',tj:'72000',ky:'25200'},
+{rank:19,title:'찐이야',artist:'영탁',tj:'70100',ky:'24600'},
+{rank:20,title:'막걸리 한 잔',artist:'영탁',tj:'72500',ky:'25400'},
+{rank:21,title:'내 사람',artist:'영탁',tj:'68900',ky:'24100'},
+{rank:22,title:'청혼',artist:'황가람',tj:'65000',ky:'22800'},
+{rank:23,title:'운동해',artist:'이영지',tj:'80800',ky:'28400'},
+{rank:24,title:'고백',artist:'폴킴',tj:'45678',ky:'17800'},
+{rank:25,title:'모든 날 모든 순간',artist:'폴킴',tj:'46200',ky:'18000'},
+{rank:26,title:'안녕',artist:'폴킴',tj:'50100',ky:'19500'},
+{rank:27,title:'비가 오는 날엔',artist:'폴킴',tj:'56800',ky:'21000'},
+{rank:28,title:'서울의 달',artist:'김광석',tj:'4900',ky:'3200'},
+{rank:29,title:'이등병의 편지',artist:'김광석',tj:'3800',ky:'2800'},
+{rank:30,title:'너무 아픈 사랑은',artist:'김광석',tj:'4100',ky:'2950'},
+{rank:31,title:'바람이 불어오는 곳',artist:'김광석',tj:'3900',ky:'2850'},
+{rank:32,title:'흩어진 나날들',artist:'멜로망스',tj:'55000',ky:'20600'},
+{rank:33,title:'선물',artist:'멜로망스',tj:'52000',ky:'19800'},
+{rank:34,title:'동경',artist:'멜로망스',tj:'48000',ky:'18700'},
+{rank:35,title:'You Are My Everything',artist:'거미',tj:'22000',ky:'8000'},
+{rank:36,title:'그 사람',artist:'거미',tj:'19800',ky:'7200'},
+{rank:37,title:'한 남자',artist:'버즈',tj:'11800',ky:'4400'},
+{rank:38,title:'가시',artist:'버즈',tj:'10200',ky:'3800'},
+{rank:39,title:'남자를 몰라',artist:'버즈',tj:'12100',ky:'4500'},
+{rank:40,title:'비 오는 날 수채화',artist:'거미',tj:'15600',ky:'5700'},
+{rank:41,title:'Dynamite',artist:'BTS',tj:'67800',ky:'23800'},
+{rank:42,title:'Boy With Luv',artist:'BTS',tj:'62100',ky:'21900'},
+{rank:43,title:'DNA',artist:'BTS',tj:'53200',ky:'19900'},
+{rank:44,title:'Butter',artist:'BTS',tj:'73200',ky:'25600'},
+{rank:45,title:'Permission to Dance',artist:'BTS',tj:'74100',ky:'25900'},
+{rank:46,title:'달라달라',artist:'ITZY',tj:'62800',ky:'22100'},
+{rank:47,title:'WANNABE',artist:'ITZY',tj:'66500',ky:'23300'},
+{rank:48,title:'마.피.아.',artist:'ITZY',tj:'71200',ky:'24900'},
+{rank:49,title:'Next Level',artist:'aespa',tj:'72900',ky:'25500'},
+{rank:50,title:'Savage',artist:'aespa',tj:'75100',ky:'26200'},
+{rank:51,title:'Black Mamba',artist:'aespa',tj:'69200',ky:'24200'},
+{rank:52,title:'Drama',artist:'aespa',tj:'83000',ky:'29500'},
+{rank:53,title:'밤편지',artist:'아이유',tj:'48900',ky:'19000'},
+{rank:54,title:'좋은 날',artist:'아이유',tj:'26500',ky:'9600'},
+{rank:55,title:'팔레트',artist:'아이유',tj:'50800',ky:'19700'},
+{rank:56,title:'BBIBBI',artist:'아이유',tj:'58000',ky:'21500'},
+{rank:57,title:'Celebrity',artist:'아이유',tj:'71000',ky:'24800'},
+{rank:58,title:'에잇',artist:'아이유',tj:'65500',ky:'23000'},
+{rank:59,title:'나의 아이돌',artist:'아이유',tj:'40100',ky:'15400'},
+{rank:60,title:'비가',artist:'이하이',tj:'35000',ky:'12900'},
+{rank:61,title:'한숨',artist:'이하이',tj:'46800',ky:'18200'},
+{rank:62,title:'거짓말',artist:'빅뱅',tj:'19100',ky:'6900'},
+{rank:63,title:'하루하루',artist:'빅뱅',tj:'21200',ky:'7700'},
+{rank:64,title:'뱅뱅뱅',artist:'빅뱅',tj:'39800',ky:'15300'},
+{rank:65,title:'판타스틱 베이비',artist:'빅뱅',tj:'30100',ky:'11000'},
+{rank:66,title:'SOJU',artist:'BIGBANG',tj:'82500',ky:'29300'},
+{rank:67,title:'비처럼 음악처럼',artist:'김현식',tj:'1200',ky:'900'},
+{rank:68,title:'내 사랑 내 곁에',artist:'김현식',tj:'1100',ky:'800'},
+{rank:69,title:'봄여름가을겨울',artist:'봄여름가을겨울',tj:'2400',ky:'1700'},
+{rank:70,title:'나의 외로움이 널 부를 때',artist:'임재범',tj:'3100',ky:'2200'},
+{rank:71,title:'고해',artist:'임재범',tj:'8900',ky:'3400'},
+{rank:72,title:'그대 앞에 서면',artist:'나훈아',tj:'900',ky:'700'},
+{rank:73,title:'테스 형',artist:'나훈아',tj:'68000',ky:'23800'},
+{rank:74,title:'영영',artist:'나훈아',tj:'700',ky:'500'},
+{rank:75,title:'내 나이가 어때서',artist:'오승근',tj:'5500',ky:'4100'},
+{rank:76,title:'아모르파티',artist:'김연자',tj:'51000',ky:'19600'},
+{rank:77,title:'웃음 꽃',artist:'김연자',tj:'5800',ky:'4300'},
+{rank:78,title:'둘이서',artist:'태진아',tj:'3300',ky:'2400'},
+{rank:79,title:'별빛 같은 나의 사랑아',artist:'남진',tj:'5100',ky:'3800'},
+{rank:80,title:'Cupid',artist:'FIFTY FIFTY',tj:'82000',ky:'29100'},
+{rank:81,title:'TOMBOY',artist:'(G)I-DLE',tj:'77100',ky:'27000'},
+{rank:82,title:'Nxde',artist:'(G)I-DLE',tj:'79600',ky:'27870'},
+{rank:83,title:'으르렁',artist:'EXO',tj:'36800',ky:'13600'},
+{rank:84,title:'중독',artist:'EXO',tj:'38500',ky:'14700'},
+{rank:85,title:'Monster',artist:'EXO',tj:'44700',ky:'17300'},
+{rank:86,title:'Super',artist:'EXO',tj:'47500',ky:'18400'},
+{rank:87,title:'Shape of You',artist:'Ed Sheeran',tj:'49200',ky:'19100'},
+{rank:88,title:'Uptown Funk',artist:'Bruno Mars',tj:'40500',ky:'15600'},
+{rank:89,title:'Counting Stars',artist:'OneRepublic',tj:'37600',ky:'14200'},
+{rank:90,title:'Rolling in the Deep',artist:'Adele',tj:'29000',ky:'10600'},
+{rank:91,title:'Bohemian Rhapsody',artist:'Queen',tj:'13500',ky:'5000'},
+{rank:92,title:'Hotel California',artist:'Eagles',tj:'8200',ky:'3100'},
+{rank:93,title:'그냥',artist:'김필',tj:'43500',ky:'16800'},
+{rank:94,title:'나는 나비',artist:'버즈',tj:'12500',ky:'4600'},
+{rank:95,title:'사람들은 모두 변하나봐',artist:'봄여름가을겨울',tj:'2600',ky:'1800'},
+{rank:96,title:'너무합니다',artist:'태진아',tj:'2800',ky:'2000'},
+{rank:97,title:'님이여',artist:'문주란',tj:'4400',ky:'3300'},
+{rank:98,title:'마지막 인사',artist:'빅뱅',tj:'20300',ky:'7400'},
+{rank:99,title:'4 Things',artist:'이하이',tj:'44000',ky:'17100'},
+{rank:100,title:'퀸카',artist:'FIFTY FIFTY',tj:'82200',ky:'29150'}
+];
+
+var KY100=[
+{rank:1,title:'Ditto',artist:'NewJeans',tj:'81111',ky:'28655'},
+{rank:2,title:'응급실',artist:'izi',tj:'14512',ky:'9489'},
+{rank:3,title:'After LIKE',artist:'IVE',tj:'79800',ky:'27900'},
+{rank:4,title:'LOVE DIVE',artist:'IVE',tj:'77700',ky:'27200'},
+{rank:5,title:'Celebrity',artist:'아이유',tj:'71000',ky:'24800'},
+{rank:6,title:'에잇',artist:'아이유',tj:'65500',ky:'23000'},
+{rank:7,title:'밤편지',artist:'아이유',tj:'48900',ky:'19000'},
+{rank:8,title:'좋은 날',artist:'아이유',tj:'26500',ky:'9600'},
+{rank:9,title:'사랑했잖아',artist:'임창정',tj:'3512',ky:'4521'},
+{rank:10,title:'소주 한 잔',artist:'임창정',tj:'21934',ky:'33291'},
+{rank:11,title:'고백',artist:'폴킴',tj:'45678',ky:'17800'},
+{rank:12,title:'모든 날 모든 순간',artist:'폴킴',tj:'46200',ky:'18000'},
+{rank:13,title:'안녕',artist:'폴킴',tj:'50100',ky:'19500'},
+{rank:14,title:'ANTIFRAGILE',artist:'LE SSERAFIM',tj:'80500',ky:'28300'},
+{rank:15,title:'FEARLESS',artist:'LE SSERAFIM',tj:'78900',ky:'27600'},
+{rank:16,title:'Hype Boy',artist:'NewJeans',tj:'80200',ky:'28100'},
+{rank:17,title:'OMG',artist:'NewJeans',tj:'81500',ky:'29000'},
+{rank:18,title:'새삥',artist:'ZICO',tj:'82100',ky:'29200'},
+{rank:19,title:'찐이야',artist:'영탁',tj:'70100',ky:'24600'},
+{rank:20,title:'막걸리 한 잔',artist:'영탁',tj:'72500',ky:'25400'},
+{rank:21,title:'진또배기',artist:'이찬원',tj:'72000',ky:'25200'},
+{rank:22,title:'그냥 살기로 했어',artist:'이찬원',tj:'79500',ky:'27850'},
+{rank:23,title:'Dynamite',artist:'BTS',tj:'67800',ky:'23800'},
+{rank:24,title:'Butter',artist:'BTS',tj:'73200',ky:'25600'},
+{rank:25,title:'Boy With Luv',artist:'BTS',tj:'62100',ky:'21900'},
+{rank:26,title:'선물',artist:'멜로망스',tj:'52000',ky:'19800'},
+{rank:27,title:'동경',artist:'멜로망스',tj:'48000',ky:'18700'},
+{rank:28,title:'흩어진 나날들',artist:'멜로망스',tj:'55000',ky:'20600'},
+{rank:29,title:'한숨',artist:'이하이',tj:'46800',ky:'18200'},
+{rank:30,title:'비가',artist:'이하이',tj:'35000',ky:'12900'},
+{rank:31,title:'Next Level',artist:'aespa',tj:'72900',ky:'25500'},
+{rank:32,title:'Savage',artist:'aespa',tj:'75100',ky:'26200'},
+{rank:33,title:'Drama',artist:'aespa',tj:'83000',ky:'29500'},
+{rank:34,title:'Black Mamba',artist:'aespa',tj:'69200',ky:'24200'},
+{rank:35,title:'TOMBOY',artist:'(G)I-DLE',tj:'77100',ky:'27000'},
+{rank:36,title:'Nxde',artist:'(G)I-DLE',tj:'79600',ky:'27870'},
+{rank:37,title:'Cupid',artist:'FIFTY FIFTY',tj:'82000',ky:'29100'},
+{rank:38,title:'달라달라',artist:'ITZY',tj:'62800',ky:'22100'},
+{rank:39,title:'WANNABE',artist:'ITZY',tj:'66500',ky:'23300'},
+{rank:40,title:'마피아',artist:'ITZY',tj:'71200',ky:'24900'},
+{rank:41,title:'테스 형',artist:'나훈아',tj:'68000',ky:'23800'},
+{rank:42,title:'아모르파티',artist:'김연자',tj:'51000',ky:'19600'},
+{rank:43,title:'Pink Venom',artist:'BLACKPINK',tj:'80100',ky:'28050'},
+{rank:44,title:'셧다운',artist:'BLACKPINK',tj:'79200',ky:'27700'},
+{rank:45,title:'뱅뱅뱅',artist:'빅뱅',tj:'39800',ky:'15300'},
+{rank:46,title:'거짓말',artist:'빅뱅',tj:'19100',ky:'6900'},
+{rank:47,title:'하루하루',artist:'빅뱅',tj:'21200',ky:'7700'},
+{rank:48,title:'판타스틱 베이비',artist:'빅뱅',tj:'30100',ky:'11000'},
+{rank:49,title:'으르렁',artist:'EXO',tj:'36800',ky:'13600'},
+{rank:50,title:'중독',artist:'EXO',tj:'38500',ky:'14700'},
+{rank:51,title:'Monster',artist:'EXO',tj:'44700',ky:'17300'},
+{rank:52,title:'한 남자',artist:'버즈',tj:'11800',ky:'4400'},
+{rank:53,title:'가시',artist:'버즈',tj:'10200',ky:'3800'},
+{rank:54,title:'You Are My Everything',artist:'거미',tj:'22000',ky:'8000'},
+{rank:55,title:'그 사람',artist:'거미',tj:'19800',ky:'7200'},
+{rank:56,title:'비 오는 날 수채화',artist:'거미',tj:'15600',ky:'5700'},
+{rank:57,title:'비처럼 음악처럼',artist:'김현식',tj:'1200',ky:'900'},
+{rank:58,title:'내 사랑 내 곁에',artist:'김현식',tj:'1100',ky:'800'},
+{rank:59,title:'너무 아픈 사랑은',artist:'김광석',tj:'4100',ky:'2950'},
+{rank:60,title:'이등병의 편지',artist:'김광석',tj:'3800',ky:'2800'},
+{rank:61,title:'바람이 불어오는 곳',artist:'김광석',tj:'3900',ky:'2850'},
+{rank:62,title:'서울의 달',artist:'김광석',tj:'4900',ky:'3200'},
+{rank:63,title:'봄여름가을겨울',artist:'봄여름가을겨울',tj:'2400',ky:'1700'},
+{rank:64,title:'나의 외로움이 널 부를 때',artist:'임재범',tj:'3100',ky:'2200'},
+{rank:65,title:'고해',artist:'임재범',tj:'8900',ky:'3400'},
+{rank:66,title:'영영',artist:'나훈아',tj:'700',ky:'500'},
+{rank:67,title:'그대 앞에 서면',artist:'나훈아',tj:'900',ky:'700'},
+{rank:68,title:'내 나이가 어때서',artist:'오승근',tj:'5500',ky:'4100'},
+{rank:69,title:'웃음 꽃',artist:'김연자',tj:'5800',ky:'4300'},
+{rank:70,title:'에필로그',artist:'임창정',tj:'28560',ky:'44231'},
+{rank:71,title:'DNA',artist:'BTS',tj:'53200',ky:'19900'},
+{rank:72,title:'Permission to Dance',artist:'BTS',tj:'74100',ky:'25900'},
+{rank:73,title:'운동해',artist:'이영지',tj:'80800',ky:'28400'},
+{rank:74,title:'청혼',artist:'황가람',tj:'65000',ky:'22800'},
+{rank:75,title:'Super',artist:'EXO',tj:'47500',ky:'18400'},
+{rank:76,title:'Shape of You',artist:'Ed Sheeran',tj:'49200',ky:'19100'},
+{rank:77,title:'Uptown Funk',artist:'Bruno Mars',tj:'40500',ky:'15600'},
+{rank:78,title:'Rolling in the Deep',artist:'Adele',tj:'29000',ky:'10600'},
+{rank:79,title:'Counting Stars',artist:'OneRepublic',tj:'37600',ky:'14200'},
+{rank:80,title:'Bohemian Rhapsody',artist:'Queen',tj:'13500',ky:'5000'},
+{rank:81,title:'SOJU',artist:'BIGBANG',tj:'82500',ky:'29300'},
+{rank:82,title:'마지막 인사',artist:'빅뱅',tj:'20300',ky:'7400'},
+{rank:83,title:'4 Things',artist:'이하이',tj:'44000',ky:'17100'},
+{rank:84,title:'BBIBBI',artist:'아이유',tj:'58000',ky:'21500'},
+{rank:85,title:'팔레트',artist:'아이유',tj:'50800',ky:'19700'},
+{rank:86,title:'비가 오는 날엔',artist:'폴킴',tj:'56800',ky:'21000'},
+{rank:87,title:'내 사람',artist:'영탁',tj:'68900',ky:'24100'},
+{rank:88,title:'퀸카',artist:'FIFTY FIFTY',tj:'82200',ky:'29150'},
+{rank:89,title:'LIAR',artist:'ZICO',tj:'40210',ky:'15800'},
+{rank:90,title:'나의 아이돌',artist:'아이유',tj:'40100',ky:'15400'},
+{rank:91,title:'Hotel California',artist:'Eagles',tj:'8200',ky:'3100'},
+{rank:92,title:'사람들은 모두 변하나봐',artist:'봄여름가을겨울',tj:'2600',ky:'1800'},
+{rank:93,title:'그냥',artist:'김필',tj:'43500',ky:'16800'},
+{rank:94,title:'나는 나비',artist:'버즈',tj:'12500',ky:'4600'},
+{rank:95,title:'둘이서',artist:'태진아',tj:'3300',ky:'2400'},
+{rank:96,title:'너무합니다',artist:'태진아',tj:'2800',ky:'2000'},
+{rank:97,title:'별빛 같은 나의 사랑아',artist:'남진',tj:'5100',ky:'3800'},
+{rank:98,title:'Attention',artist:'NewJeans',tj:'80201',ky:'28101'},
+{rank:99,title:'그냥 살기로 했어',artist:'이찬원',tj:'79500',ky:'27850'},
+{rank:100,title:'남자를 몰라',artist:'버즈',tj:'12100',ky:'4500'}
+];
+
+// 상태
+var mySongs=[], customSongs=[], favEdits={};
+var favs={};
+var myFilter='all', mySort='rank', myQ='';
+var topBrand='tj', topQ='';
+var favSort='recent', favQ='';
+var editId=null, keyType='male', keyAdj=0, statusVal='practicing';
+var efKeyType='male', efKeyAdj=0, efStatusVal='practicing', efFavKey=null;
+var parsedJsonSongs=[];
+
+// 로컬스토리지 안전 접근
+function ls(k,v){
+  try{
+    if(v===undefined) return localStorage.getItem(k);
+    if(v===null) return localStorage.removeItem(k);
+    localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));
+  }catch(e){return null;}
+}
+function lsGet(k,def){try{var r=ls(k);return r?JSON.parse(r):def;}catch(e){return def;}}
+
+function loadAll(){
+  mySongs=lsGet(MY_KEY,[]);
+  customSongs=lsGet(CUSTOM_KEY,[]);
+  var fArr=lsGet(FAV_KEY,[]);
+  favs={};fArr.forEach(function(k){favs[k]=1;});
+  favEdits=lsGet(FAVEDIT_KEY,{});
+  if(!mySongs.length){
+    mySongs=[
+      {id:1,title:'응급실',artist:'izi',tj:'14512',ky:'9489',keyType:'male',keyAdj:-2,status:'done',rank:1,memo:'도입부 박자 주의. 고음 지르기 최고.',createdAt:Date.now()-5000},
+      {id:2,title:'Ditto',artist:'NewJeans',tj:'81111',ky:'28655',keyType:'female',keyAdj:0,status:'practicing',rank:2,memo:'랩 부분 연습 필요.',createdAt:Date.now()-4000},
+      {id:3,title:'사랑했잖아',artist:'임창정',tj:'3512',ky:'4521',keyType:'male',keyAdj:-1,status:'done',rank:3,memo:'회식용 필수.',createdAt:Date.now()-3000}
+    ];
+    saveMy();
+  }
+}
+function saveMy(){ls(MY_KEY,mySongs);}
+function saveCustom(){ls(CUSTOM_KEY,customSongs);}
+function saveFavs(){ls(FAV_KEY,Object.keys(favs));}
+function saveFE(){ls(FAVEDIT_KEY,favEdits);}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2100);
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function keyLabel(kt,ka){
+  var b=kt==='male'?'👨남':kt==='female'?'👩여':'원키';
+  if(!ka) return b;
+  return b+'('+(ka>0?'+':'')+ka+')';
+}
+
+// ── 내 목록 ──
+function getMyList(){
+  var list=mySongs.slice();
+  if(myFilter==='practicing') list=list.filter(function(s){return s.status==='practicing';});
+  if(myFilter==='done') list=list.filter(function(s){return s.status==='done';});
+  if(myQ){var q=myQ.toLowerCase();list=list.filter(function(s){return s.title.toLowerCase().indexOf(q)>=0||s.artist.toLowerCase().indexOf(q)>=0;});}
+  if(mySort==='rank') list.sort(function(a,b){return(a.rank||9999)-(b.rank||9999)||b.createdAt-a.createdAt;});
+  else if(mySort==='recent') list.sort(function(a,b){return b.createdAt-a.createdAt;});
+  else list.sort(function(a,b){return a.title.localeCompare(b.title,'ko');});
+  return list;
+}
+function renderMy(){
+  var list=getMyList();
+  document.getElementById('myCount').textContent=mySongs.length+'곡';
+  var el=document.getElementById('myList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">🎵</div><p>'+(myQ?'검색 결과 없음':'곡을 추가해보세요')+'</p></div>';return;}
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var s=list[i],dn=s.status==='done',fk='my:'+s.id,isFav=!!favs[fk];
+    h+='<div class="song-card'+(dn?' done':'')+'">'
+      +'<div class="card-top">'
+      +'<button class="status-tog '+(dn?'dn':'pr')+'" data-act="togglest" data-id="'+s.id+'">'+(dn?'✨':'🎤')+'</button>'
+      +'<div style="flex:1;min-width:0"><div class="song-ttl">'+esc(s.title)+'</div>'
+      +'<div class="song-art">'+esc(s.artist)+(s.rank?' · <span style="color:var(--gold)">🏆'+s.rank+'위</span>':'')+'</div></div></div>'
+      +'<div class="num-row">'
+      +'<div class="num-chip tj '+(s.tj?'':'na')+'"><span class="lbl">TJ</span>'+(s.tj||'—')+'</div>'
+      +'<div class="num-chip ky '+(s.ky?'':'na')+'"><span class="lbl">금영</span>'+(s.ky||'—')+'</div></div>'
+      +'<div class="tag-row"><span class="key-tag">'+keyLabel(s.keyType,s.keyAdj)+'</span>'
+      +'<span class="st-tag '+(dn?'dn':'pr')+'">'+(dn?'✨완료':'🎤연습중')+'</span></div>'
+      +(s.memo?'<div class="memo-txt">'+esc(s.memo)+'</div>':'')
+      +'<div class="card-actions">'
+      +'<button class="act-btn'+(isFav?' fav-on':'')+'" data-act="myfav" data-id="'+s.id+'">'+(isFav?'⭐':'☆')+' 즐겨찾기</button>'
+      +'<button class="act-btn" data-act="edit" data-id="'+s.id+'">✏️ 수정</button>'
+      +'</div></div>';
+  }
+  el.innerHTML=h;
+}
+
+// ── 탑100 ──
+function renderTop(){
+  document.getElementById('topBadge').textContent=topBrand==='tj'?'TJ':topBrand==='ky'?'금영':'추가곡';
+  var data=topBrand==='tj'?TJ100:topBrand==='ky'?KY100:customSongs.map(function(s,i){return{rank:i+1,title:s.title,artist:s.artist,tj:s.tj,ky:s.ky,id:s.id,_custom:true};});
+  if(topQ){var q=topQ.toLowerCase();data=data.filter(function(s){return s.title.toLowerCase().indexOf(q)>=0||s.artist.toLowerCase().indexOf(q)>=0;});}
+  var el=document.getElementById('topList');
+  if(!data.length){el.innerHTML='<div class="empty"><div class="ei">'+(topBrand==='custom'&&!topQ?'📥':'🔍')+'</div><p>'+(topBrand==='custom'&&!topQ?'JSON으로 곡을 가져오세요':'검색 결과 없음')+'</p></div>';return;}
+  var h='';
+  for(var i=0;i<data.length;i++){
+    var s=data[i],src=topBrand==='custom'?'custom':topBrand,sid=topBrand==='custom'?s.id:s.rank;
+    var fk=src+':'+sid,isFav=!!favs[fk];
+    var rc=s.rank===1?'r1':s.rank===2?'r2':s.rank===3?'r3':'rn';
+    h+='<div class="top-card">'
+      +'<div class="top-rank '+rc+'">'+s.rank+'</div>'
+      +'<div class="top-info"><div class="top-ttl">'+esc(s.title)+'</div>'
+      +'<div class="top-art">'+esc(s.artist)+'</div>'
+      +'<div class="top-nums"><span class="top-chip tj"><span class="tl">TJ </span>'+(s.tj||'—')+'</span>'
+      +'<span class="top-chip ky"><span class="tl">금영 </span>'+(s.ky||'—')+'</span></div></div>'
+      +'<div class="top-btns">'
+      +'<button class="top-fav'+(isFav?' on':'')+'" data-act="topfav" data-src="'+src+'" data-sid="'+sid+'">'+(isFav?'⭐':'☆')+'</button>'
+      +(topBrand==='custom'?'<button class="top-del" data-act="topdel" data-sid="'+s.id+'">🗑</button>':'')
+      +'</div></div>';
+  }
+  el.innerHTML=h;
+}
+
+// ── 즐겨찾기 ──
+function getFavData(k,orig){return favEdits[k]?Object.assign({},orig,favEdits[k]):Object.assign({},orig);}
+function getFavList(){
+  var list=[];
+  var keys=Object.keys(favs);
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i],p=k.split(':'),src=p[0],id=p.slice(1).join(':');
+    var orig=null,badge=src,addedAt=0;
+    if(src==='my'){var s=mySongs.filter(function(x){return x.id===parseInt(id);})[0];if(s){orig=Object.assign({},s);addedAt=s.createdAt;}}
+    else if(src==='tj'){var s=TJ100.filter(function(x){return x.rank===parseInt(id);})[0];if(s)orig=Object.assign({keyType:'original',keyAdj:0,status:'practicing'},s);}
+    else if(src==='ky'){var s=KY100.filter(function(x){return x.rank===parseInt(id);})[0];if(s)orig=Object.assign({keyType:'original',keyAdj:0,status:'practicing'},s);}
+    else if(src==='custom'){var s=customSongs.filter(function(x){return x.id===parseInt(id);})[0];if(s)orig=Object.assign({keyType:'original',keyAdj:0,status:'practicing'},s);addedAt=s?s.addedAt||0:0;}
+    if(orig){var data=getFavData(k,orig);data._fk=k;data._badge=badge;data._addedAt=addedAt;list.push(data);}
+  }
+  if(favQ){var q=favQ.toLowerCase();list=list.filter(function(s){return s.title.toLowerCase().indexOf(q)>=0||s.artist.toLowerCase().indexOf(q)>=0;});}
+  if(favSort==='title') list.sort(function(a,b){return a.title.localeCompare(b.title,'ko');});
+  else list.sort(function(a,b){return b._addedAt-a._addedAt;});
+  return list;
+}
+function renderFav(){
+  var list=getFavList();
+  document.getElementById('favCount').textContent=list.length;
+  var el=document.getElementById('favList');
+  var bl={my:'내목록',tj:'TJ',ky:'금영',custom:'추가곡'};
+  if(!list.length){el.innerHTML='<div class="empty"><div class="ei">⭐</div><p>즐겨찾기한 곡이 없습니다</p></div>';return;}
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var s=list[i],dn=s.status==='done',hasEdit=!!favEdits[s._fk];
+    h+='<div class="fav-card"><div class="fav-head">'
+      +'<span class="fav-badge '+s._badge+'">'+(bl[s._badge]||s._badge)+'</span>'
+      +'<div style="flex:1;min-width:0"><div class="song-ttl">'+esc(s.title)+'</div>'
+      +'<div class="song-art">'+esc(s.artist)+(s.rank?' · 🏆'+s.rank+'위':'')+'</div></div></div>'
+      +'<div class="num-row">'
+      +'<div class="num-chip tj '+(s.tj?'':'na')+'"><span class="lbl">TJ</span>'+(s.tj||'—')+'</div>'
+      +'<div class="num-chip ky '+(s.ky?'':'na')+'"><span class="lbl">금영</span>'+(s.ky||'—')+'</div></div>'
+      +'<div class="tag-row"><span class="key-tag">'+keyLabel(s.keyType,s.keyAdj)+'</span>'
+      +'<span class="st-tag '+(dn?'dn':'pr')+'">'+(dn?'✨완료':'🎤연습중')+'</span>'
+      +(hasEdit?'<span class="key-tag" style="background:rgba(255,209,102,.1);color:var(--gold);border-color:rgba(255,209,102,.2)">수정됨</span>':'')+'</div>'
+      +(s.memo?'<div class="memo-txt">'+esc(s.memo)+'</div>':'')
+      +'<div class="fav-actions">'
+      +'<button class="fav-act edit" data-act="favedit" data-fk="'+s._fk+'">✏️ 수정</button>'
+      +(hasEdit?'<button class="fav-act" data-act="favreset" data-fk="'+s._fk+'" style="border-color:rgba(255,209,102,.3);color:var(--gold)">↩초기화</button>':'')
+      +'<button class="fav-act remove" data-act="favremove" data-fk="'+s._fk+'">해제</button>'
+      +'</div></div>';
+  }
+  el.innerHTML=h;
+}
+
+// ── 모달 ──
+function setKT(t){keyType=t;var bs=document.querySelectorAll('#keyOpts .key-opt');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('active',bs[i].getAttribute('data-k')===t);}
+function setKA(v){keyAdj=Math.max(-6,Math.min(6,v));document.getElementById('keyVal').textContent=keyAdj>0?'+'+keyAdj:keyAdj;}
+function setSt(st){statusVal=st;document.getElementById('stPr').className='st-opt'+(st==='practicing'?' ap':'');document.getElementById('stDn').className='st-opt'+(st==='done'?' ad':'');}
+
+function openAdd(){
+  editId=null;
+  document.getElementById('modalTtl').textContent='새 곡 추가';
+  document.getElementById('fTitle').value='';
+  document.getElementById('fArtist').value='';
+  document.getElementById('fTj').value='';
+  document.getElementById('fKy').value='';
+  document.getElementById('fRank').value='';
+  document.getElementById('fMemo').value='';
+  document.getElementById('delBtn').style.display='none';
+  setKT('male');setKA(0);setSt('practicing');
+  document.getElementById('overlay').classList.add('open');
+}
+function openEdit(id){
+  var s=mySongs.filter(function(x){return x.id===id;})[0];if(!s)return;
+  editId=id;
+  document.getElementById('modalTtl').textContent='곡 수정';
+  document.getElementById('fTitle').value=s.title;
+  document.getElementById('fArtist').value=s.artist;
+  document.getElementById('fTj').value=s.tj||'';
+  document.getElementById('fKy').value=s.ky||'';
+  document.getElementById('fRank').value=s.rank||'';
+  document.getElementById('fMemo').value=s.memo||'';
+  document.getElementById('delBtn').style.display='';
+  setKT(s.keyType||'male');setKA(s.keyAdj||0);setSt(s.status||'practicing');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeMod(){document.getElementById('overlay').classList.remove('open');}
+function saveSong(){
+  var title=document.getElementById('fTitle').value.trim(),artist=document.getElementById('fArtist').value.trim();
+  if(!title||!artist){toast('제목과 가수명을 입력해주세요.');return;}
+  var d={title:title,artist:artist,tj:document.getElementById('fTj').value.trim(),ky:document.getElementById('fKy').value.trim(),keyType:keyType,keyAdj:keyAdj,status:statusVal,rank:parseInt(document.getElementById('fRank').value)||null,memo:document.getElementById('fMemo').value.trim()};
+  if(editId){for(var i=0;i<mySongs.length;i++){if(mySongs[i].id===editId){Object.assign(mySongs[i],d);break;}}toast('✅ 수정 완료!');}
+  else{var nid=mySongs.length?Math.max.apply(null,mySongs.map(function(s){return s.id;}))+1:1;d.id=nid;d.createdAt=Date.now();mySongs.push(d);toast('🎵 새 곡 추가!');}
+  saveMy();renderMy();closeMod();
+}
+function deleteSong(){
+  if(!editId||!confirm('삭제할까요?'))return;
+  delete favs['my:'+editId];delete favEdits['my:'+editId];
+  mySongs=mySongs.filter(function(s){return s.id!==editId;});
+  saveMy();saveFavs();saveFE();renderMy();renderFav();closeMod();toast('🗑 삭제됨');
+}
+
+// ── 즐겨찾기 수정 모달 ──
+function setEfKT(t){efKeyType=t;var bs=document.querySelectorAll('#efKeyOpts .key-opt');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('active',bs[i].getAttribute('data-ek')===t);}
+function setEfKA(v){efKeyAdj=Math.max(-6,Math.min(6,v));document.getElementById('efKeyVal').textContent=efKeyAdj>0?'+'+efKeyAdj:efKeyAdj;}
+function setEfSt(st){efStatusVal=st;document.getElementById('efStPr').className='st-opt'+(st==='practicing'?' ap':'');document.getElementById('efStDn').className='st-opt'+(st==='done'?' ad':'');}
+
+function openFavEdit(k){
+  efFavKey=k;
+  var p=k.split(':'),src=p[0],id=p.slice(1).join(':');
+  var orig=null;
+  if(src==='my'){orig=mySongs.filter(function(x){return x.id===parseInt(id);})[0];}
+  else if(src==='tj'){orig=TJ100.filter(function(x){return x.rank===parseInt(id);})[0];if(orig)orig=Object.assign({keyType:'original',keyAdj:0,status:'practicing'},orig);}
+  else if(src==='ky'){orig=KY100.filter(function(x){return x.rank===parseInt(id);})[0];if(orig)orig=Object.assign({keyType:'original',keyAdj:0,status:'practicing'},orig);}
+  else if(src==='custom'){orig=customSongs.filter(function(x){return x.id===parseInt(id);})[0];}
+  if(!orig)return;
+  var d=getFavData(k,orig);
+  document.getElementById('efTitle').value=d.title||'';
+  document.getElementById('efArtist').value=d.artist||'';
+  document.getElementById('efTj').value=d.tj||'';
+  document.getElementById('efKy').value=d.ky||'';
+  document.getElementById('efRank').value=d.rank||'';
+  document.getElementById('efMemo').value=d.memo||'';
+  setEfKT(d.keyType||'original');setEfKA(d.keyAdj||0);setEfSt(d.status||'practicing');
+  document.getElementById('favOverlay').classList.add('open');
+}
+function closeFavEdit(){document.getElementById('favOverlay').classList.remove('open');}
+function saveFavEdit(){
+  if(!efFavKey)return;
+  var t=document.getElementById('efTitle').value.trim(),a=document.getElementById('efArtist').value.trim();
+  if(!t||!a){toast('제목과 가수명을 입력해주세요.');return;}
+  favEdits[efFavKey]={title:t,artist:a,tj:document.getElementById('efTj').value.trim(),ky:document.getElementById('efKy').value.trim(),rank:parseInt(document.getElementById('efRank').value)||null,memo:document.getElementById('efMemo').value.trim(),keyType:efKeyType,keyAdj:efKeyAdj,status:efStatusVal};
+  saveFE();closeFavEdit();renderFav();toast('✅ 수정 완료!');
+}
+
+// ── JSON 가져오기 ──
+function openJson(){
+  document.getElementById('jsonInput').value='';
+  document.getElementById('jsonResult').style.display='none';
+  document.getElementById('jsonStep1').style.display='block';
+  document.getElementById('jsonStep2').style.display='none';
+  document.getElementById('jsonOverlay').classList.add('open');
+}
+function closeJson(){document.getElementById('jsonOverlay').classList.remove('open');}
+function parseJson(){
+  var raw=document.getElementById('jsonInput').value.trim(),res=document.getElementById('jsonResult');
+  if(!raw){res.textContent='JSON을 입력해주세요.';res.className='json-result err';res.style.display='block';return;}
+  var arr;try{arr=JSON.parse(raw);}catch(e){res.textContent='파싱 오류: '+e.message;res.className='json-result err';res.style.display='block';return;}
+  if(!Array.isArray(arr)){res.textContent='배열 [ {...} ] 형식이어야 합니다.';res.className='json-result err';res.style.display='block';return;}
+  var valid=arr.filter(function(s){return s&&typeof s.title==='string'&&s.title.trim()&&typeof s.artist==='string'&&s.artist.trim();});
+  if(!valid.length){res.textContent='title, artist 필드가 필요합니다.';res.className='json-result err';res.style.display='block';return;}
+  parsedJsonSongs=valid.map(function(s,i){return{_tid:i,title:s.title.trim(),artist:s.artist.trim(),tj:String(s.tj||'').trim(),ky:String(s.ky||'').trim(),rank:s.rank||null,memo:String(s.memo||'').trim()};});
+  document.getElementById('jsonStep1').style.display='none';
+  document.getElementById('jsonStep2').style.display='block';
+  document.getElementById('jsonStep2Ttl').textContent='가져올 곡 선택 ('+parsedJsonSongs.length+'곡)';
+  var exist={};customSongs.forEach(function(s){exist[s.title+'|'+s.artist]=1;});
+  var el=document.getElementById('jsonImportList');
+  var h='';
+  for(var i=0;i<parsedJsonSongs.length;i++){
+    var s=parsedJsonSongs[i],dup=exist[s.title+'|'+s.artist];
+    h+='<div class="jil-item"><input type="checkbox" class="jil-check" data-tid="'+s._tid+'"'+(dup?'':' checked')+'>'
+      +'<div class="jil-info"><div class="jil-title">'+esc(s.title)+(dup?'<span class="jil-dup">이미있음</span>':'')+'</div>'
+      +'<div class="jil-artist">'+esc(s.artist)+'</div>'
+      +'<div class="jil-nums">TJ '+(s.tj||'—')+' · 금영 '+(s.ky||'—')+'</div></div></div>';
+  }
+  el.innerHTML=h;
+  updateSel();
+}
+function updateSel(){
+  var n=document.querySelectorAll('#jsonImportList .jil-check:checked').length;
+  document.getElementById('selCount').textContent=n+'곡';
+}
+function confirmJson(){
+  var cbs=document.querySelectorAll('#jsonImportList .jil-check:checked');
+  if(!cbs.length){toast('선택된 곡이 없습니다.');return;}
+  var now=Date.now(),maxId=customSongs.length?Math.max.apply(null,customSongs.map(function(s){return s.id||0;})):0;
+  var added=0;
+  for(var i=0;i<cbs.length;i++){
+    var tid=parseInt(cbs[i].getAttribute('data-tid'));
+    var s=parsedJsonSongs.filter(function(x){return x._tid===tid;})[0];
+    if(s){customSongs.push({id:maxId+i+1,title:s.title,artist:s.artist,tj:s.tj,ky:s.ky,rank:s.rank,memo:s.memo,addedAt:now});added++;}
+  }
+  saveCustom();closeJson();
+  topBrand='custom';
+  var bs=document.querySelectorAll('#topBrands .sub-tab');for(var i=0;i<bs.length;i++)bs[i].classList.toggle('active',bs[i].getAttribute('data-brand')==='custom');
+  renderTop();toast('✅ '+added+'곡 추가!');
+}
+
+// ── 이벤트 위임 ──
+document.addEventListener('click',function(e){
+  var t=e.target,act=t.getAttribute('data-act');
+  if(!act) t=t.parentElement;
+  if(t) act=t.getAttribute('data-act');
+  if(!act) return;
+
+  if(act==='togglest'){
+    var id=parseInt(t.getAttribute('data-id'));
+    var s=mySongs.filter(function(x){return x.id===id;})[0];
+    if(s){s.status=s.status==='done'?'practicing':'done';saveMy();renderMy();toast(s.status==='done'?'✨완료!':'🎤연습중!');}
+  }
+  else if(act==='myfav'){
+    var id=parseInt(t.getAttribute('data-id')),k='my:'+id;
+    if(favs[k]){delete favs[k];toast('즐겨찾기 해제');}else{favs[k]=1;toast('⭐즐겨찾기 추가!');}
+    saveFavs();renderMy();renderFav();
+  }
+  else if(act==='edit'){openEdit(parseInt(t.getAttribute('data-id')));}
+  else if(act==='topfav'){
+    var k=t.getAttribute('data-src')+':'+t.getAttribute('data-sid');
+    if(favs[k]){delete favs[k];toast('해제');}else{favs[k]=1;toast('⭐추가!');}
+    saveFavs();renderTop();renderFav();
+  }
+  else if(act==='topdel'){
+    var sid=parseInt(t.getAttribute('data-sid'));
+    if(!confirm('삭제?'))return;
+    delete favs['custom:'+sid];delete favEdits['custom:'+sid];
+    customSongs=customSongs.filter(function(s){return s.id!==sid;});
+    saveCustom();saveFavs();saveFE();renderTop();renderFav();toast('🗑삭제됨');
+  }
+  else if(act==='favedit'){openFavEdit(t.getAttribute('data-fk'));}
+  else if(act==='favreset'){
+    delete favEdits[t.getAttribute('data-fk')];saveFE();renderFav();toast('↩초기화됨');
+  }
+  else if(act==='favremove'){
+    var k=t.getAttribute('data-fk');delete favs[k];delete favEdits[k];
+    saveFavs();saveFE();renderFav();renderMy();if(document.getElementById('page-top').classList.contains('active'))renderTop();toast('해제');
+  }
+});
+
+// 네비
+document.getElementById('mainNav').addEventListener('click',function(e){
+  var btn=e.target.closest('.nav-btn');if(!btn)return;
+  var pg=btn.getAttribute('data-page');
+  var bs=document.querySelectorAll('.nav-btn');for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+  btn.classList.add('active');
+  var ps=document.querySelectorAll('.page');for(var i=0;i<ps.length;i++)ps[i].classList.remove('active');
+  document.getElementById('page-'+pg).classList.add('active');
+  if(pg==='top')renderTop();if(pg==='fav')renderFav();
+});
+
+// 필터/정렬
+document.getElementById('myFilters').addEventListener('click',function(e){
+  var btn=e.target;if(!btn.classList.contains('sub-tab'))return;
+  myFilter=btn.getAttribute('data-f');
+  var bs=this.querySelectorAll('.sub-tab');for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+  btn.classList.add('active');renderMy();
+});
+document.getElementById('mySorts').addEventListener('click',function(e){
+  var btn=e.target;if(!btn.classList.contains('sort-btn'))return;
+  mySort=btn.getAttribute('data-s');
+  var bs=this.querySelectorAll('.sort-btn');for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+  btn.classList.add('active');renderMy();
+});
+document.getElementById('topBrands').addEventListener('click',function(e){
+  var btn=e.target;if(!btn.classList.contains('sub-tab'))return;
+  topBrand=btn.getAttribute('data-brand');
+  var bs=this.querySelectorAll('.sub-tab');for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+  btn.classList.add('active');renderTop();
+});
+document.getElementById('favSorts').addEventListener('click',function(e){
+  var btn=e.target;if(!btn.classList.contains('sort-btn'))return;
+  favSort=btn.getAttribute('data-fs');
+  var bs=this.querySelectorAll('.sort-btn');for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+  btn.classList.add('active');renderFav();
+});
+
+// 검색
+function bindSearch(inpId,clearId,fn){
+  document.getElementById(inpId).addEventListener('input',function(){fn(this.value);document.getElementById(clearId).style.display=this.value?'block':'none';});
+  document.getElementById(clearId).addEventListener('click',function(){document.getElementById(inpId).value='';fn('');this.style.display='none';});
+}
+bindSearch('mySearch','mySearchClear',function(v){myQ=v;renderMy();});
+bindSearch('topSearch','topSearchClear',function(v){topQ=v;renderTop();});
+bindSearch('favSearch','favSearchClear',function(v){favQ=v;renderFav();});
+
+// FAB
+document.getElementById('addBtn').addEventListener('click',openAdd);
+document.getElementById('jsonImportBtn').addEventListener('click',openJson);
+
+// 내 목록 모달
+document.getElementById('cancelBtn').addEventListener('click',closeMod);
+document.getElementById('saveBtn').addEventListener('click',saveSong);
+document.getElementById('delBtn').addEventListener('click',deleteSong);
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeMod();});
+document.getElementById('keyOpts').addEventListener('click',function(e){var k=e.target.getAttribute('data-k');if(k)setKT(k);});
+document.getElementById('keyMinus').addEventListener('click',function(){setKA(keyAdj-1);});
+document.getElementById('keyPlus').addEventListener('click',function(){setKA(keyAdj+1);});
+document.getElementById('stPr').addEventListener('click',function(){setSt('practicing');});
+document.getElementById('stDn').addEventListener('click',function(){setSt('done');});
+
+// 즐겨찾기 모달
+document.getElementById('efCancelBtn').addEventListener('click',closeFavEdit);
+document.getElementById('efSaveBtn').addEventListener('click',saveFavEdit);
+document.getElementById('favOverlay').addEventListener('click',function(e){if(e.target===this)closeFavEdit();});
+document.getElementById('efKeyOpts').addEventListener('click',function(e){var k=e.target.getAttribute('data-ek');if(k)setEfKT(k);});
+document.getElementById('efKeyMinus').addEventListener('click',function(){setEfKA(efKeyAdj-1);});
+document.getElementById('efKeyPlus').addEventListener('click',function(){setEfKA(efKeyAdj+1);});
+document.getElementById('efStPr').addEventListener('click',function(){setEfSt('practicing');});
+document.getElementById('efStDn').addEventListener('click',function(){setEfSt('done');});
+
+// JSON 모달
+document.getElementById('jsonCancelBtn').addEventListener('click',closeJson);
+document.getElementById('jsonParseBtn').addEventListener('click',parseJson);
+document.getElementById('jsonBackBtn').addEventListener('click',function(){document.getElementById('jsonStep1').style.display='block';document.getElementById('jsonStep2').style.display='none';});
+document.getElementById('jsonConfirmBtn').addEventListener('click',confirmJson);
+document.getElementById('jsonOverlay').addEventListener('click',function(e){if(e.target===this)closeJson();});
+document.getElementById('selAll').addEventListener('change',function(){var cbs=document.querySelectorAll('#jsonImportList .jil-check');for(var i=0;i<cbs.length;i++)cbs[i].checked=this.checked;updateSel();});
+document.getElementById('jsonImportList').addEventListener('change',updateSel);
+
+// 초기화
+loadAll();renderMy();
+
+})();
+</script>
+</body>
+</html>
+
