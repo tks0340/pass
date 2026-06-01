@@ -3,452 +3,841 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>맛집 메모</title>
+<title>비밀번호 금고</title>
 <style>
 :root{
-  --bg:#f6f1e8;
-  --card:#fffaf3;
-  --card-strong:#fffdf9;
-  --ink:#2f241a;
-  --muted:#7b6a58;
-  --line:rgba(89,62,34,.12);
-  --accent:#cf6037;
-  --accent-soft:rgba(207,96,55,.12);
-  --danger:#b13b2f;
-  --shadow:0 18px 45px rgba(72,49,28,.12);
-  --radius-xl:24px;
-  --radius-lg:18px;
-  --radius-md:14px;
+  --bg:#0b1020;
+  --bg2:#111a33;
+  --card:#131d39;
+  --card2:#182445;
+  --line:rgba(255,255,255,.09);
+  --text:#f5f7ff;
+  --muted:#98a6cf;
+  --accent:#78a6ff;
+  --accent2:#8df0d0;
+  --danger:#ff6f91;
+  --warn:#ffd36e;
+  --shadow:0 18px 50px rgba(0,0,0,.35);
+  --radius:20px;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
-  color:var(--ink);
-  font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif;
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(207,96,55,.16), transparent 22%),
-    linear-gradient(180deg, #fbf7f1 0%, #f5eee4 55%, #f0e6d8 100%);
+    radial-gradient(circle at top left, rgba(120,166,255,.18), transparent 28%),
+    radial-gradient(circle at right 15%, rgba(141,240,208,.12), transparent 24%),
+    linear-gradient(180deg, #070b16 0%, var(--bg) 55%, #090d19 100%);
 }
-button,input,textarea{font:inherit}
+button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-.app{
-  width:min(100%, 720px);
-  margin:0 auto;
+a{color:inherit}
+.shell{
   min-height:100%;
-  padding:18px 14px 28px;
+  width:min(1280px,100%);
+  margin:0 auto;
+  padding:24px 18px 30px;
 }
 .hero{
-  background:var(--card-strong);
+  display:grid;
+  grid-template-columns:1.3fr .9fr;
+  gap:16px;
+  align-items:stretch;
+  margin-bottom:16px;
+}
+.brand,.info-card,.panel,.item,.modal-panel{
+  background:rgba(19,29,57,.88);
   border:1px solid var(--line);
-  border-radius:var(--radius-xl);
   box-shadow:var(--shadow);
-  padding:20px 18px;
+  backdrop-filter:blur(16px);
+}
+.brand{
+  border-radius:28px;
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+}
+.brand::before{
+  content:"";
+  position:absolute;
+  inset:auto -10% -25% auto;
+  width:260px;height:260px;
+  background:radial-gradient(circle, rgba(120,166,255,.24), transparent 65%);
+  pointer-events:none;
 }
 .eyebrow{
   display:inline-flex;
+  gap:8px;
   align-items:center;
-  padding:7px 11px;
+  padding:7px 12px;
   border-radius:999px;
-  background:var(--accent-soft);
-  color:#944522;
+  background:rgba(120,166,255,.14);
+  border:1px solid rgba(120,166,255,.22);
+  color:#dce8ff;
   font-size:12px;
-  font-weight:700;
+  letter-spacing:.02em;
+  margin-bottom:14px;
 }
-h1{
-  margin:14px 0 8px;
-  font-size:31px;
-  line-height:1.06;
-  letter-spacing:-.05em;
+.title{
+  font-size:clamp(28px,4vw,52px);
+  line-height:1.02;
+  margin:0 0 10px;
+  letter-spacing:-.04em;
 }
-.sub{
+.subtitle{
   margin:0;
   color:var(--muted);
   font-size:14px;
   line-height:1.7;
+  max-width:60ch;
+}
+.hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:18px;
+}
+.btn{
+  border:none;
+  border-radius:14px;
+  padding:11px 14px;
+  color:var(--text);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.09);
+  transition:transform .15s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+}
+.btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12)}
+.btn.primary{background:linear-gradient(135deg, var(--accent), #6ad6ff);color:#08101f;border-color:transparent;font-weight:700}
+.btn.primary:hover{background:linear-gradient(135deg, #8ab7ff, #88eff4)}
+.btn.ghost{background:transparent}
+.btn.danger{background:rgba(255,111,145,.12);border-color:rgba(255,111,145,.28);color:#ffd9e3}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.stat{
+  border-radius:22px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:100px;
+}
+.stat .label{font-size:12px;color:var(--muted)}
+.stat .value{font-size:30px;font-weight:800;margin-top:8px;letter-spacing:-.04em}
+.stat .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.layout{
+  display:grid;
+  grid-template-columns:420px minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+.panel{
+  border-radius:28px;
+  overflow:hidden;
+}
+.panel-head{
+  padding:18px 18px 14px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+}
+.panel-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.panel-title h2,.panel-title h3{
+  margin:0;
+  font-size:16px;
+  letter-spacing:-.02em;
+}
+.hint{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
 }
 .toolbar{
   display:grid;
   grid-template-columns:1fr auto;
   gap:10px;
-  margin-top:16px;
 }
-.search,.field,.textarea{
+.search{
   width:100%;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:rgba(255,251,245,.96);
-  color:var(--ink);
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:12px 14px;
   outline:none;
-  transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
 }
-.search,.field{padding:13px 14px}
+.search:focus,.field:focus,.textarea:focus,.select:focus{
+  border-color:rgba(120,166,255,.55);
+  box-shadow:0 0 0 4px rgba(120,166,255,.14);
+}
+.select,.field,.textarea{
+  width:100%;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:12px 14px;
+  outline:none;
+}
+.select{appearance:none}
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.chip{
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.05);
+  color:var(--muted);
+  padding:8px 12px;
+  font-size:12px;
+}
+.chip.active{
+  color:#08101f;
+  background:linear-gradient(135deg, var(--accent2), #a2fbde);
+  border-color:transparent;
+  font-weight:700;
+}
+.section{
+  padding:18px;
+}
+.grid-form{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.field-wrap{display:flex;flex-direction:column;gap:6px}
+.field-wrap.full{grid-column:1/-1}
+.label-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:12px;
+  color:var(--muted);
+}
+.password-row{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:8px;
+}
+.mini-btn{
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:0 12px;
+  min-width:48px;
+}
+.mini-btn.icon{min-width:44px}
 .textarea{
-  padding:13px 14px;
-  min-height:116px;
+  min-height:92px;
   resize:vertical;
 }
-.search:focus,.field:focus,.textarea:focus{
-  border-color:rgba(207,96,55,.45);
-  box-shadow:0 0 0 4px rgba(207,96,55,.12);
-  background:#fffdfa;
-}
-.btn{
-  border:none;
-  border-radius:16px;
-  padding:13px 16px;
-  background:#ece0cf;
-  color:var(--ink);
-  border:1px solid rgba(89,62,34,.08);
-}
-.btn.primary{
-  background:linear-gradient(135deg, var(--accent), #e68863);
-  color:#fff9f6;
-  font-weight:700;
-  border-color:transparent;
-}
-.btn.danger{
-  background:rgba(177,59,47,.1);
-  color:var(--danger);
-}
-.meta{
+.form-actions{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin:16px 4px 12px;
-  color:var(--muted);
-  font-size:13px;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
 }
-.count{
-  font-weight:700;
-  color:var(--ink);
+.subtle{
+  color:var(--muted);
+  font-size:12px;
+}
+.list-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.sort-wrap{
+  min-width:160px;
 }
 .list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+  display:grid;
+  gap:12px;
 }
-.card{
-  width:100%;
-  text-align:left;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:20px;
-  box-shadow:var(--shadow);
+.item{
+  border-radius:22px;
   padding:16px;
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.card-title{
-  margin:0 0 6px;
-  font-size:18px;
-  letter-spacing:-.03em;
+.item.flash{
+  border-color:rgba(120,166,255,.5);
+  box-shadow:0 0 0 3px rgba(120,166,255,.14), var(--shadow);
+  transform:translateY(-1px);
 }
-.card-food{
-  margin:0;
-  color:#5c4836;
-  font-size:14px;
-  line-height:1.6;
-}
-.card-address{
-  margin:10px 0 0;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-}
-.card-date{
-  margin-top:10px;
-  color:var(--muted);
-  font-size:12px;
-}
-.empty{
-  background:rgba(255,250,243,.8);
-  border:1px dashed rgba(89,62,34,.16);
-  border-radius:20px;
-  padding:22px 18px;
-  color:var(--muted);
-  line-height:1.7;
-  text-align:center;
-}
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(28,21,15,.44);
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  padding:12px;
-}
-.overlay.open{display:flex}
-.sheet{
-  width:min(100%, 720px);
-  max-height:min(92vh, 860px);
-  overflow:auto;
-  background:var(--card-strong);
-  border-radius:26px 26px 18px 18px;
-  box-shadow:0 28px 70px rgba(0,0,0,.24);
-  border:1px solid var(--line);
-  padding:18px 16px 20px;
-}
-.sheet-bar{
-  width:54px;
-  height:5px;
-  border-radius:999px;
-  background:#ddccb7;
-  margin:0 auto 14px;
-}
-.sheet-head{
+.item-top{
   display:flex;
   justify-content:space-between;
+  gap:10px;
   align-items:flex-start;
-  gap:12px;
-  margin-bottom:14px;
 }
-.sheet-title{
+.item-title{
   margin:0;
-  font-size:22px;
-  letter-spacing:-.04em;
+  font-size:17px;
+  letter-spacing:-.02em;
 }
-.sheet-sub{
-  margin-top:6px;
+.item-meta{
   color:var(--muted);
-  font-size:13px;
+  font-size:12px;
+  margin-top:4px;
+  line-height:1.5;
+}
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.05);
+}
+.badge.good{background:rgba(141,240,208,.09);border-color:rgba(141,240,208,.18);color:#bdf9ea}
+.badge.warn{background:rgba(255,211,110,.09);border-color:rgba(255,211,110,.18);color:#ffe4ab}
+.badge.hot{background:rgba(255,111,145,.09);border-color:rgba(255,111,145,.18);color:#ffd1dc}
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.row .btn{padding:9px 12px;border-radius:12px;font-size:13px}
+.row .btn.small{padding:8px 10px;font-size:12px}
+.password{
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:16px;
+  background:rgba(255,255,255,.05);
+  border:1px dashed rgba(255,255,255,.12);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.password code{
+  font-size:14px;
+  word-break:break-all;
+}
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:42px 18px;
+  border-radius:24px;
+  border:1px dashed rgba(255,255,255,.12);
+  background:rgba(255,255,255,.03);
+}
+.footer-note{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:12px;
   line-height:1.6;
 }
-.form{
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(5,8,16,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:30;
+}
+.modal.open{display:flex}
+.modal-panel{
+  width:min(860px,100%);
+  max-height:min(90vh,980px);
+  overflow:auto;
+  border-radius:28px;
+}
+.modal-head{
+  padding:18px 18px 14px;
+  border-bottom:1px solid var(--line);
   display:flex;
-  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
   gap:12px;
 }
-.field-wrap{
+.modal-body{padding:18px}
+.modal-actions{
   display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-.label{
-  font-size:12px;
-  font-weight:700;
-  color:#665140;
-}
-.actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
+  flex-wrap:wrap;
   gap:10px;
-  margin-top:6px;
+  margin-top:14px;
 }
-.actions.single{
-  grid-template-columns:1fr;
+.mode-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
 }
-.footer{
-  margin-top:16px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.7;
-  text-align:center;
+.radio{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.05);
+  padding:10px 12px;
+  cursor:pointer;
+  user-select:none;
+  font-size:13px;
 }
-@media (max-width:560px){
-  .toolbar{grid-template-columns:1fr auto}
-  .btn{padding:13px 14px}
-  h1{font-size:28px}
+.radio input{accent-color:var(--accent)}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%) translateY(30px);
+  opacity:0;
+  pointer-events:none;
+  background:#0f1730;
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:var(--shadow);
+  border-radius:999px;
+  padding:12px 16px;
+  z-index:50;
+  transition:opacity .18s ease, transform .18s ease;
+  font-size:13px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (max-width:980px){
+  .hero,.layout{grid-template-columns:1fr}
+  .brand{border-radius:24px}
+}
+@media (max-width:680px){
+  .shell{padding:14px}
+  .stats{grid-template-columns:1fr 1fr}
+  .grid-form{grid-template-columns:1fr}
+  .password-row,.toolbar{grid-template-columns:1fr}
+  .panel,.brand,.item,.modal-panel{border-radius:22px}
+  .title{font-size:30px}
 }
 </style>
 </head>
 <body>
-<div class="app">
-  <section class="hero">
-    <span class="eyebrow">모바일용 심플 버전</span>
-    <h1>맛집 메모</h1>
-    <p class="sub">이름, 주소, 음식, 기타메모, 등록일만 간단하게 저장하고 검색할 수 있게 정리했습니다.</p>
-    <div class="toolbar">
-      <input id="searchInput" class="search" placeholder="이름, 주소, 음식, 메모 검색">
-      <button id="addBtn" class="btn primary" type="button">새로 추가</button>
-    </div>
-  </section>
+  <div class="shell">
+    <section class="hero">
+      <div class="brand">
+        <div class="eyebrow">로컬 전용 · JSON 가져오기/내보내기 · 빠른 수정</div>
+        <h1 class="title">비밀번호 금고</h1>
+        <p class="subtitle">
+          이름, 비밀번호, 기타 메모만 빠르게 적고 바로 저장하는 심플한 비밀번호 메모장입니다.
+          저장하면 곧바로 아래 목록에 보이도록 정리했습니다.
+        </p>
+        <div class="hero-actions">
+          <button class="btn primary" id="btnNewTop">새로 쓰기</button>
+          <button class="btn" id="btnShowListTop">목록 보기</button>
+          <button class="btn" id="btnExportTop">JSON 내보내기</button>
+          <button class="btn" id="btnImportTop">JSON 가져오기</button>
+        </div>
+      </div>
+      <div class="info-card stats">
+        <div class="stat">
+          <div class="label">저장된 항목</div>
+          <div class="value" id="statTotal">0</div>
+          <div class="sub">이 브라우저에 저장</div>
+        </div>
+        <div class="stat">
+          <div class="label">보이는 상태</div>
+          <div class="value" id="statFav">정상</div>
+          <div class="sub">저장 후 목록으로 이동</div>
+        </div>
+        <div class="stat">
+          <div class="label">최근 수정</div>
+          <div class="value" id="statUpdated">-</div>
+          <div class="sub">가장 최근 변경 시각</div>
+        </div>
+        <div class="stat">
+          <div class="label">JSON 상태</div>
+          <div class="value" style="font-size:18px;line-height:1.3" id="statJson">v1</div>
+          <div class="sub">백업/이관용 형식</div>
+        </div>
+      </div>
+    </section>
 
-  <div class="meta">
-    <span>저장된 맛집</span>
-    <span id="countLabel" class="count">0개</span>
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>새 항목</h2>
+            <span class="subtle" id="editState">새 항목 작성 중</span>
+          </div>
+          <div class="hint">복잡한 메뉴 없이 필요한 것만 적고 저장하세요.</div>
+        </div>
+        <div class="section">
+          <form id="entryForm">
+            <input type="hidden" id="entryId">
+            <div class="grid-form">
+              <div class="field-wrap full">
+                <div class="label-row"><label for="title">이름</label><span>필수</span></div>
+                <input class="field" id="title" placeholder="예: 네이버, 카카오, 회사메일" required>
+              </div>
+              <div class="field-wrap full">
+                <div class="label-row"><label for="password">비밀번호</label><span>복사 가능</span></div>
+                <div class="password-row">
+                  <input class="field" id="password" placeholder="비밀번호를 입력하세요" type="password">
+                  <button type="button" class="mini-btn icon" id="btnTogglePw">보기</button>
+                  <button type="button" class="mini-btn" id="btnGenPw">생성</button>
+                </div>
+              </div>
+              <div class="field-wrap full">
+                <div class="label-row"><label for="memo">기타</label><span>선택</span></div>
+                <textarea class="textarea" id="memo" placeholder="아이디, 사이트 주소, 메모 등"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" type="submit" id="btnSave">저장</button>
+              <button class="btn" type="button" id="btnShowListForm">목록 보기</button>
+              <button class="btn" type="button" id="btnResetForm">입력 초기화</button>
+              <button class="btn" type="button" id="btnCopyPw">비밀번호 복사</button>
+            </div>
+          </form>
+          <div class="footer-note">
+            이 앱은 서버로 전송하지 않고 이 브라우저에만 저장합니다. 민감한 비밀번호는 JSON 파일로 내보낼 때 일반 텍스트가 되므로, 파일 보관은 주의해서 사용하세요.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2>저장 목록</h2>
+            <span class="subtle" id="resultCount">0개</span>
+          </div>
+          <div class="hero-actions" style="margin-top:0">
+            <button class="btn" type="button" id="btnToggleListPw">비밀번호 숨김</button>
+          </div>
+          <div class="hint">저장하면 이 아래 목록 맨 위에 바로 나타납니다.</div>
+        </div>
+        <div class="section" id="listSection">
+          <div class="list" id="list"></div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <section id="list" class="list"></section>
-
-  <p class="footer">카드를 누르면 열리고, 수정 후 저장하면 바로 반영됩니다.</p>
-</div>
-
-<div id="overlay" class="overlay" aria-hidden="true">
-  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-    <div class="sheet-bar"></div>
-    <div class="sheet-head">
-      <div>
-        <h2 id="sheetTitle" class="sheet-title">맛집 입력</h2>
-        <div class="sheet-sub">필요한 항목만 남겨서 스마트폰에서도 빠르게 적을 수 있게 했습니다.</div>
+  <div class="modal" id="jsonModal" aria-hidden="true">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div>
+          <h3 id="jsonModalTitle" style="margin:0 0 6px;font-size:18px">JSON 내보내기</h3>
+          <div class="hint" id="jsonModalHint">전체 금고를 JSON으로 복사하거나 파일로 저장할 수 있습니다.</div>
+        </div>
+        <button class="btn ghost" id="btnCloseJson">닫기</button>
       </div>
-      <button id="closeBtn" class="btn" type="button">닫기</button>
+      <div class="modal-body">
+        <div class="mode-row" id="importModeRow" style="display:none">
+          <label class="radio"><input type="radio" name="importMode" value="replace" checked>전체 덮어쓰기</label>
+          <label class="radio"><input type="radio" name="importMode" value="merge">중복 제외 병합</label>
+        </div>
+        <textarea class="textarea" id="jsonArea" spellcheck="false" placeholder='{"version":1,"items":[...]}'></textarea>
+        <div class="modal-actions">
+          <button class="btn primary" id="btnJsonMain">복사</button>
+          <button class="btn" id="btnDownloadJson">파일로 저장</button>
+          <button class="btn" id="btnLoadJson">가져오기 실행</button>
+        </div>
+        <div class="footer-note" id="jsonHelp"></div>
+      </div>
     </div>
+  </div>
 
-    <form id="form" class="form">
-      <input id="recordId" type="hidden">
-      <label class="field-wrap">
-        <span class="label">이름</span>
-        <input id="name" class="field" required placeholder="예: 우진해장국">
-      </label>
-      <label class="field-wrap">
-        <span class="label">주소</span>
-        <input id="address" class="field" placeholder="예: 제주시 서사로 11">
-      </label>
-      <label class="field-wrap">
-        <span class="label">음식</span>
-        <input id="food" class="field" placeholder="예: 고사리해장국, 빈대떡">
-      </label>
-      <label class="field-wrap">
-        <span class="label">기타메모</span>
-        <textarea id="notes" class="textarea" placeholder="웨이팅, 맛, 다시 가고 싶은 이유 등을 적어두세요"></textarea>
-      </label>
-      <label class="field-wrap">
-        <span class="label">등록일</span>
-        <input id="dateAdded" class="field" type="date">
-      </label>
-      <div class="actions">
-        <button class="btn primary" type="submit">저장</button>
-        <button id="deleteBtn" class="btn danger" type="button">삭제</button>
+  <div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-panel" style="width:min(520px,100%)">
+      <div class="modal-head">
+        <div>
+          <h3 style="margin:0 0 6px;font-size:18px">초기화 확인</h3>
+          <div class="hint">예제 데이터로 다시 채우면 현재 저장된 내용이 모두 교체됩니다.</div>
+        </div>
+        <button class="btn ghost" id="btnCloseConfirm">닫기</button>
       </div>
-      <div class="actions single">
-        <button id="newFromSheetBtn" class="btn" type="button">새 입력으로 비우기</button>
+      <div class="modal-body">
+        <div class="footer-note" style="margin-top:0">
+          정말 초기화할까요? 필요하면 먼저 JSON으로 내보내고 진행하는 것을 추천합니다.
+        </div>
+        <div class="modal-actions">
+          <button class="btn danger" id="btnConfirmReset">초기화</button>
+          <button class="btn" id="btnCancelReset">취소</button>
+        </div>
       </div>
-    </form>
-  </section>
-</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = "matzip-simple-records-v1";
-const today = () => new Date().toISOString().slice(0, 10);
-const supportsRandomUuid = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function";
-const makeId = () => supportsRandomUuid
-  ? crypto.randomUUID()
-  : `matzip-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+const STORAGE_KEY = "password-vault-v1";
+const APP_VERSION = 1;
 
-const seedRecords = [
+const sampleData = [
   {
-    id: makeId(),
-    name: "우진해장국",
-    address: "제주시 서사로 11",
-    food: "고사리해장국, 녹두빈대떡",
-    notes: "웨이팅이 긴 편이라 애매한 시간대 방문 메모용",
-    dateAdded: today(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    id: crypto.randomUUID(),
+    title: "네이버",
+    kind: "site",
+    account: "sample@naver.com",
+    password: "demo1234!",
+    url: "https://www.naver.com",
+    tags: ["개인", "포털"],
+    memo: "2차 인증 사용 중",
+    favorite: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
   },
   {
-    id: makeId(),
-    name: "송정3대국밥",
-    address: "부산 부산진구 서면로68번길 33",
-    food: "돼지국밥, 수육백반",
-    notes: "서면 근처에서 빨리 한 끼 먹기 좋았던 곳",
-    dateAdded: today(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    id: crypto.randomUUID(),
+    title: "Slack",
+    kind: "service",
+    account: "team@example.com",
+    password: "workspace-2026",
+    url: "https://slack.com",
+    tags: ["업무", "협업"],
+    memo: "업무용 워크스페이스",
+    favorite: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 25).toISOString()
   }
 ];
 
+let state = loadState();
+let activeFilter = "all";
+let activeSort = "updatedDesc";
+let selectedId = null;
+let showPassword = false;
+let highlightedId = null;
+
 const els = {
+  total: document.getElementById("statTotal"),
+  fav: document.getElementById("statFav"),
+  updated: document.getElementById("statUpdated"),
+  json: document.getElementById("statJson"),
+  editState: document.getElementById("editState"),
+  resultCount: document.getElementById("resultCount"),
+  listSection: document.getElementById("listSection"),
   list: document.getElementById("list"),
-  countLabel: document.getElementById("countLabel"),
-  searchInput: document.getElementById("searchInput"),
-  addBtn: document.getElementById("addBtn"),
-  overlay: document.getElementById("overlay"),
-  closeBtn: document.getElementById("closeBtn"),
-  form: document.getElementById("form"),
-  recordId: document.getElementById("recordId"),
-  name: document.getElementById("name"),
-  address: document.getElementById("address"),
-  food: document.getElementById("food"),
-  notes: document.getElementById("notes"),
-  dateAdded: document.getElementById("dateAdded"),
-  deleteBtn: document.getElementById("deleteBtn"),
-  newFromSheetBtn: document.getElementById("newFromSheetBtn")
+  entryForm: document.getElementById("entryForm"),
+  entryId: document.getElementById("entryId"),
+  title: document.getElementById("title"),
+  password: document.getElementById("password"),
+  memo: document.getElementById("memo"),
+  btnSave: document.getElementById("btnSave"),
+  btnTogglePw: document.getElementById("btnTogglePw"),
+  btnToggleListPw: document.getElementById("btnToggleListPw"),
+  btnGenPw: document.getElementById("btnGenPw"),
+  btnCopyPw: document.getElementById("btnCopyPw"),
+  btnResetForm: document.getElementById("btnResetForm"),
+  btnNewTop: document.getElementById("btnNewTop"),
+  btnShowListTop: document.getElementById("btnShowListTop"),
+  btnShowListForm: document.getElementById("btnShowListForm"),
+  btnExportTop: document.getElementById("btnExportTop"),
+  btnImportTop: document.getElementById("btnImportTop"),
+  jsonModal: document.getElementById("jsonModal"),
+  jsonModalTitle: document.getElementById("jsonModalTitle"),
+  jsonModalHint: document.getElementById("jsonModalHint"),
+  importModeRow: document.getElementById("importModeRow"),
+  jsonArea: document.getElementById("jsonArea"),
+  jsonHelp: document.getElementById("jsonHelp"),
+  btnCloseJson: document.getElementById("btnCloseJson"),
+  btnJsonMain: document.getElementById("btnJsonMain"),
+  btnDownloadJson: document.getElementById("btnDownloadJson"),
+  btnLoadJson: document.getElementById("btnLoadJson"),
+  confirmModal: document.getElementById("confirmModal"),
+  btnCloseConfirm: document.getElementById("btnCloseConfirm"),
+  btnConfirmReset: document.getElementById("btnConfirmReset"),
+  btnCancelReset: document.getElementById("btnCancelReset"),
+  toast: document.getElementById("toast")
 };
 
-let records = loadRecords();
-let selectedId = null;
+const kindLabels = {
+  site: "사이트",
+  program: "프로그램",
+  service: "서비스",
+  other: "기타"
+};
 
-function loadRecords(){
-  try{
+function loadState() {
+  try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(seedRecords));
-      return normalizeRecords(seedRecords);
-    }
+    if (!raw) return normalizeState(sampleData);
     const parsed = JSON.parse(raw);
-    if(Array.isArray(parsed) && parsed.length){
-      return normalizeRecords(parsed);
-    }
-  }catch(error){
-    console.error(error);
+    if (Array.isArray(parsed)) return normalizeState(parsed);
+    if (parsed && Array.isArray(parsed.items)) return normalizeState(parsed.items);
+  } catch (err) {
+    console.warn(err);
   }
+  return normalizeState(sampleData);
+}
 
-  const migrated = migrateLegacyRecords();
-  if(migrated.length){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-    return normalizeRecords(migrated);
+function normalizeState(items) {
+  return {
+    version: APP_VERSION,
+    updatedAt: new Date().toISOString(),
+    items: items.map((item) => ({
+      id: item.id || crypto.randomUUID(),
+      title: String(item.title || item.name || "").trim(),
+      kind: ["site", "program", "service", "other"].includes(item.kind) ? item.kind : "other",
+      account: String(item.account || item.username || "").trim(),
+      password: String(item.password || item.pw || ""),
+      url: String(item.url || "").trim(),
+      tags: Array.isArray(item.tags)
+        ? item.tags.map((tag) => String(tag).trim()).filter(Boolean)
+        : String(item.tags || "")
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+      memo: String(item.memo || "").trim(),
+      favorite: Boolean(item.favorite),
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: item.updatedAt || item.createdAt || new Date().toISOString()
+    }))
+  };
+}
+
+function persist(nextState) {
+  state = {
+    version: APP_VERSION,
+    updatedAt: new Date().toISOString(),
+    items: nextState.items.map((item) => ({ ...item }))
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  render();
+}
+
+function saveStateOnly() {
+  state.updatedAt = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  render();
+}
+
+function fmtDate(value) {
+  if (!value) return "-";
+  try {
+    return new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    }).format(new Date(value));
+  } catch {
+    return value;
   }
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(seedRecords));
-  return normalizeRecords(seedRecords);
 }
 
-function migrateLegacyRecords(){
-  const legacyKeys = ["matzip-manager-records-v1"];
-  for(const key of legacyKeys){
-    try{
-      const raw = localStorage.getItem(key);
-      if(!raw) continue;
-      const parsed = JSON.parse(raw);
-      if(Array.isArray(parsed) && parsed.length){
-        return parsed.map((item) => ({
-          id: String(item.id || makeId()),
-          name: String(item.name || "").trim(),
-          address: String(item.address || "").trim(),
-          food: String(item.food || item.recommendedMenu || item.menuBoard || item.price || "").trim(),
-          notes: String(item.notes || item.sourceSummary || "").trim(),
-          dateAdded: String(item.dateAdded || today()),
-          createdAt: String(item.createdAt || new Date().toISOString()),
-          updatedAt: String(item.updatedAt || new Date().toISOString())
-        }));
-      }
-    }catch(error){
-      console.error(error);
-    }
+function toast(message) {
+  els.toast.textContent = message;
+  els.toast.classList.add("show");
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => els.toast.classList.remove("show"), 1700);
+}
+
+function toTags(value) {
+  return String(value || "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function currentFormData() {
+  return {
+    title: els.title.value.trim(),
+    password: els.password.value,
+    memo: els.memo.value.trim()
+  };
+}
+
+function syncPasswordVisibility() {
+  els.password.type = showPassword ? "text" : "password";
+  els.btnTogglePw.textContent = showPassword ? "숨김" : "보기";
+  if (els.btnToggleListPw) {
+    els.btnToggleListPw.textContent = showPassword ? "비밀번호 보임" : "비밀번호 숨김";
   }
-  return [];
 }
 
-function normalizeRecords(items){
-  return items.map((item) => ({
-    id: String(item.id || makeId()),
-    name: String(item.name || "").trim(),
-    address: String(item.address || "").trim(),
-    food: String(item.food || "").trim(),
-    notes: String(item.notes || "").trim(),
-    dateAdded: String(item.dateAdded || today()),
-    createdAt: String(item.createdAt || new Date().toISOString()),
-    updatedAt: String(item.updatedAt || new Date().toISOString())
-  })).sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+function clearForm() {
+  selectedId = null;
+  els.entryId.value = "";
+  els.title.value = "";
+  els.password.value = "";
+  els.memo.value = "";
+  syncPasswordVisibility();
+  els.editState.textContent = "새 항목 작성 중";
+  els.btnSave.textContent = "저장";
 }
 
-function saveRecords(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+function openRecord(record) {
+  selectedId = record.id;
+  els.entryId.value = record.id;
+  els.title.value = record.title;
+  els.password.value = record.password;
+  els.memo.value = record.memo || record.account || record.url || "";
+  els.btnSave.textContent = "수정 저장";
+  els.editState.textContent = "선택된 항목 수정 중";
+  syncPasswordVisibility();
 }
 
-function filteredRecords(){
-  const keyword = els.searchInput.value.trim().toLowerCase();
-  if(!keyword) return records;
-  return records.filter((record) => {
-    const text = [record.name, record.address, record.food, record.notes, record.dateAdded].join(" ").toLowerCase();
-    return text.includes(keyword);
-  });
+function filteredItems() {
+  let items = [...state.items];
+  items.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  return items;
 }
 
-function escapeHtml(value){
-  return String(value ?? "")
+function renderChips() {
+  return;
+}
+
+function kindBadge(kind) {
+  const label = kindLabels[kind] || kindLabels.other;
+  const colorClass = kind === "program" ? "warn" : kind === "site" ? "good" : kind === "service" ? "hot" : "";
+  return `<span class="badge ${colorClass}">${label}</span>`;
+}
+
+function itemCard(item) {
+  const passwordText = showPassword ? item.password : "•".repeat(Math.max(8, Math.min(16, (item.password || "").length || 8)));
+  return `
+    <article class="item" data-id="${item.id}">
+      <div class="item-top">
+        <div>
+          <h3 class="item-title">${escapeHtml(item.title || "(제목 없음)")}</h3>
+          <div class="item-meta">
+            최근 수정 ${escapeHtml(fmtDate(item.updatedAt))}
+          </div>
+        </div>
+      </div>
+      <div class="password">
+        <code>${escapeHtml(passwordText)}</code>
+        <button class="btn small" data-action="copy-pw">복사</button>
+      </div>
+      ${item.memo ? `<div class="item-meta" style="margin-top:10px">${escapeHtml(item.memo)}</div>` : ""}
+      <div class="row">
+        <button class="btn small" data-action="edit">수정</button>
+        <button class="btn small" data-action="delete">삭제</button>
+      </div>
+    </article>
+  `;
+}
+
+function escapeHtml(str) {
+  return String(str)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -456,133 +845,296 @@ function escapeHtml(value){
     .replaceAll("'", "&#39;");
 }
 
-function openSheet(record = null){
-  selectedId = record?.id ?? null;
-  els.recordId.value = record?.id ?? "";
-  els.name.value = record?.name ?? "";
-  els.address.value = record?.address ?? "";
-  els.food.value = record?.food ?? "";
-  els.notes.value = record?.notes ?? "";
-  els.dateAdded.value = record?.dateAdded ?? today();
-  els.deleteBtn.style.display = record ? "block" : "none";
-  els.overlay.classList.add("open");
-  els.overlay.setAttribute("aria-hidden", "false");
-  setTimeout(() => els.name.focus(), 30);
+function escapeAttr(str) {
+  return escapeHtml(str).replaceAll("`", "&#96;");
 }
 
-function closeSheet(){
-  els.overlay.classList.remove("open");
-  els.overlay.setAttribute("aria-hidden", "true");
+function render() {
+  renderChips();
+  const items = filteredItems();
+  els.resultCount.textContent = `${items.length}개`;
+  els.total.textContent = String(state.items.length);
+  els.fav.textContent = "정상";
+  const latest = state.items.length
+    ? [...state.items].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+    : null;
+  els.updated.textContent = latest ? fmtDate(latest.updatedAt) : "-";
+  els.json.textContent = `v${state.version}`;
+  if (!items.length) {
+    els.list.innerHTML = `<div class="empty">검색 결과가 없습니다. 새 항목을 추가하거나 검색어를 바꿔보세요.</div>`;
+  } else {
+    els.list.innerHTML = items.map(itemCard).join("");
+    els.list.querySelectorAll(".item").forEach((card) => {
+      card.addEventListener("click", (e) => {
+        const action = e.target?.dataset?.action;
+        const id = card.dataset.id;
+        const item = state.items.find((record) => record.id === id);
+        if (!item || !action) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (action === "edit") openRecord(item);
+        if (action === "delete") deleteRecord(id);
+        if (action === "copy-pw") copyToClipboard(item.password, "비밀번호를 복사했습니다.");
+      });
+    });
+    if (highlightedId) {
+      const activeCard = els.list.querySelector(`[data-id="${highlightedId}"]`);
+      if (activeCard) {
+        activeCard.classList.add("flash");
+        activeCard.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        setTimeout(() => activeCard.classList.remove("flash"), 1600);
+      }
+      highlightedId = null;
+    }
+  }
 }
 
-function clearForm(){
-  selectedId = null;
-  els.recordId.value = "";
-  els.form.reset();
-  els.dateAdded.value = today();
-  els.deleteBtn.style.display = "none";
+function revealRecord(id) {
+  highlightedId = id;
 }
 
-function render(){
-  const items = filteredRecords();
-  els.countLabel.textContent = `${records.length}개`;
+function goToList() {
+  els.listSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
-  if(!items.length){
-    els.list.innerHTML = `<div class="empty">검색 결과가 없습니다.<br>오른쪽 위의 "새로 추가"로 바로 적어보세요.</div>`;
+function upsertRecord(data) {
+  if (!data.title) {
+    toast("이름은 꼭 입력해야 합니다.");
     return;
   }
+  const now = new Date().toISOString();
+  const record = {
+    id: selectedId || crypto.randomUUID(),
+    title: data.title,
+    kind: "other",
+    account: "",
+    password: data.password,
+    url: "",
+    tags: [],
+    memo: data.memo,
+    favorite: false,
+    createdAt: now,
+    updatedAt: now
+  };
+  const index = state.items.findIndex((item) => item.id === selectedId);
+  if (index >= 0) {
+    record.favorite = state.items[index].favorite;
+    record.createdAt = state.items[index].createdAt || now;
+    state.items[index] = record;
+    revealRecord(record.id);
+    toast("항목을 수정했습니다.");
+  } else {
+    state.items.unshift(record);
+    revealRecord(record.id);
+    toast("새 항목을 저장했습니다.");
+  }
+  saveStateOnly();
+  clearForm();
+  setTimeout(goToList, 80);
+}
 
-  els.list.innerHTML = items.map((record) => `
-    <button type="button" class="card" data-id="${record.id}">
-      <h3 class="card-title">${escapeHtml(record.name || "이름 없음")}</h3>
-      <p class="card-food">${escapeHtml(record.food || "음식 미입력")}</p>
-      <p class="card-address">${escapeHtml(record.address || "주소 미입력")}</p>
-      <div class="card-date">등록일 ${escapeHtml(record.dateAdded || "-")}</div>
-    </button>
-  `).join("");
+function deleteRecord(id) {
+  const item = state.items.find((record) => record.id === id);
+  if (!item) return;
+  if (!confirm(`"${item.title}" 항목을 삭제할까요?`)) return;
+  state.items = state.items.filter((record) => record.id !== id);
+  if (selectedId === id) clearForm();
+  saveStateOnly();
+  toast("항목을 삭제했습니다.");
+}
 
-  els.list.querySelectorAll(".card").forEach((button) => {
-    button.addEventListener("click", () => {
-      const record = records.find((item) => item.id === button.dataset.id);
-      openSheet(record || null);
+async function copyToClipboard(text, successMsg) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast(successMsg);
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    toast(successMsg);
+  }
+}
+
+function randomPassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*_-+?";
+  const bytes = new Uint32Array(18);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (n) => chars[n % chars.length]).join("");
+}
+
+function openJsonModal(mode) {
+  els.jsonModal.classList.add("open");
+  if (mode === "import") {
+    els.jsonModalTitle.textContent = "JSON 가져오기";
+    els.jsonModalHint.textContent = "붙여넣은 JSON을 전체 덮어쓰기 또는 병합 방식으로 불러올 수 있습니다.";
+    els.importModeRow.style.display = "flex";
+    els.btnJsonMain.textContent = "JSON 복사";
+    els.btnLoadJson.style.display = "inline-flex";
+    els.btnDownloadJson.style.display = "none";
+    els.jsonArea.value = "";
+    els.jsonHelp.textContent = "형식 예시: {\"version\":1,\"items\":[{...}]} 또는 items 배열만 넣어도 됩니다.";
+  } else {
+    els.jsonModalTitle.textContent = "JSON 내보내기";
+    els.jsonModalHint.textContent = "전체 금고를 백업하거나 다른 기기로 옮길 때 사용하세요.";
+    els.importModeRow.style.display = "none";
+    els.btnJsonMain.textContent = "복사";
+    els.btnLoadJson.style.display = "none";
+    els.btnDownloadJson.style.display = "inline-flex";
+    els.jsonArea.value = JSON.stringify(state, null, 2);
+    els.jsonHelp.textContent = "내보낸 JSON은 일반 텍스트입니다. 안전한 위치에 보관하세요.";
+  }
+}
+
+function closeJsonModal() {
+  els.jsonModal.classList.remove("open");
+}
+
+function openConfirmModal() {
+  els.confirmModal.classList.add("open");
+}
+
+function closeConfirmModal() {
+  els.confirmModal.classList.remove("open");
+}
+
+function importedItemsFromJson(text) {
+  const parsed = JSON.parse(text);
+  if (Array.isArray(parsed)) return normalizeState(parsed).items;
+  if (parsed && Array.isArray(parsed.items)) return normalizeState(parsed.items).items;
+  throw new Error("items 배열을 찾을 수 없습니다.");
+}
+
+function mergeUnique(existing, incoming) {
+  const map = new Map(existing.map((item) => [item.id, item]));
+  for (const item of incoming) {
+    if (map.has(item.id)) {
+      const prev = map.get(item.id);
+      map.set(item.id, {
+        ...prev,
+        ...item,
+        favorite: prev.favorite || item.favorite,
+        createdAt: prev.createdAt || item.createdAt,
+        updatedAt: item.updatedAt || prev.updatedAt
+      });
+    } else {
+      map.set(item.id, item);
+    }
+  }
+  return Array.from(map.values());
+}
+
+function bindEvents() {
+  els.entryForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    upsertRecord(currentFormData());
+  });
+
+  els.btnResetForm.addEventListener("click", clearForm);
+  els.btnNewTop.addEventListener("click", () => {
+    clearForm();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  els.btnShowListTop.addEventListener("click", goToList);
+  els.btnShowListForm.addEventListener("click", goToList);
+  els.btnExportTop.addEventListener("click", () => openJsonModal("export"));
+  els.btnImportTop.addEventListener("click", () => openJsonModal("import"));
+  els.btnCloseJson.addEventListener("click", closeJsonModal);
+  els.btnCloseConfirm.addEventListener("click", closeConfirmModal);
+  els.btnCancelReset.addEventListener("click", closeConfirmModal);
+
+  els.btnTogglePw.addEventListener("click", () => {
+    showPassword = !showPassword;
+    syncPasswordVisibility();
+    render();
+  });
+
+  els.btnToggleListPw.addEventListener("click", () => {
+    showPassword = !showPassword;
+    syncPasswordVisibility();
+    render();
+  });
+
+  els.btnGenPw.addEventListener("click", () => {
+    els.password.value = randomPassword();
+    showPassword = true;
+    syncPasswordVisibility();
+    toast("비밀번호를 생성했습니다.");
+  });
+
+  els.btnCopyPw.addEventListener("click", () => {
+    if (!els.password.value) return toast("복사할 비밀번호가 없습니다.");
+    copyToClipboard(els.password.value, "비밀번호를 복사했습니다.");
+  });
+
+  els.btnJsonMain.addEventListener("click", async () => {
+    await copyToClipboard(els.jsonArea.value, "JSON을 복사했습니다.");
+  });
+
+  els.btnDownloadJson.addEventListener("click", () => {
+    const blob = new Blob([els.jsonArea.value], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `password-vault-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("JSON 파일을 저장했습니다.");
+  });
+
+  els.btnLoadJson.addEventListener("click", () => {
+    try {
+      const mode = document.querySelector('input[name="importMode"]:checked')?.value || "replace";
+      const incoming = importedItemsFromJson(els.jsonArea.value);
+      if (mode === "merge") {
+        state.items = mergeUnique(state.items, incoming);
+      } else {
+        state.items = incoming;
+      }
+      state.updatedAt = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+      closeJsonModal();
+      toast(mode === "merge" ? "JSON을 병합했습니다." : "JSON을 불러왔습니다.");
+    } catch (err) {
+      toast(`JSON 형식이 올바르지 않습니다. ${err.message}`);
+    }
+  });
+
+  els.btnConfirmReset.addEventListener("click", () => {
+    state = normalizeState(sampleData);
+    persist(state);
+    clearForm();
+    closeConfirmModal();
+    toast("예제 데이터로 초기화했습니다.");
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeJsonModal();
+      closeConfirmModal();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      els.entryForm.requestSubmit();
+    }
+  });
+
+  [els.jsonModal, els.confirmModal].forEach((modal) => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.remove("open");
+      }
     });
   });
 }
 
-els.addBtn.addEventListener("click", () => {
-  clearForm();
-  openSheet();
-});
-
-els.closeBtn.addEventListener("click", closeSheet);
-
-els.overlay.addEventListener("click", (event) => {
-  if(event.target === els.overlay){
-    closeSheet();
-  }
-});
-
-els.newFromSheetBtn.addEventListener("click", () => {
-  clearForm();
-  els.name.focus();
-});
-
-els.searchInput.addEventListener("input", render);
-
-els.form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const name = els.name.value.trim();
-  if(!name){
-    alert("이름은 꼭 입력해주세요.");
-    return;
-  }
-
-  const now = new Date().toISOString();
-  const payload = {
-    id: els.recordId.value || makeId(),
-    name,
-    address: els.address.value.trim(),
-    food: els.food.value.trim(),
-    notes: els.notes.value.trim(),
-    dateAdded: els.dateAdded.value || today(),
-    createdAt: records.find((item) => item.id === els.recordId.value)?.createdAt || now,
-    updatedAt: now
-  };
-
-  const existingIndex = records.findIndex((item) => item.id === payload.id);
-  if(existingIndex >= 0){
-    records[existingIndex] = payload;
-  }else{
-    records.unshift(payload);
-  }
-
-  records = normalizeRecords(records);
-  saveRecords();
-  render();
-  closeSheet();
-});
-
-els.deleteBtn.addEventListener("click", () => {
-  const id = els.recordId.value;
-  if(!id) return;
-  const target = records.find((item) => item.id === id);
-  if(!target) return;
-  if(!confirm(`"${target.name}"을(를) 삭제할까요?`)) return;
-  records = records.filter((item) => item.id !== id);
-  saveRecords();
-  render();
-  clearForm();
-  closeSheet();
-});
-
-document.addEventListener("keydown", (event) => {
-  if(event.key === "Escape"){
-    closeSheet();
-  }
-});
-
-clearForm();
+bindEvents();
+localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 render();
+clearForm();
 </script>
 </body>
 </html>
