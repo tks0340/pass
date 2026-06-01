@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pastel Tetris</title>
+  <style>
+    :root {
+      --bg-top: #fff7ef;
+      --bg-bottom: #e8f6ff;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(255, 255, 255, 0.95);
+      --text: #5d5a75;
+      --subtext: #7d7b96;
+      --grid: #f6effa;
+      --shadow: rgba(133, 127, 170, 0.18);
+      --accent: #ffb7c5;
+      --accent-2: #a9def9;
+      --accent-3: #d0f4de;
+      --danger: #ffcad4;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 214, 224, 0.75), transparent 35%),
+        radial-gradient(circle at top right, rgba(181, 234, 255, 0.8), transparent 32%),
+        linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      display: flex;
+      justify-content: center;
+      padding: 18px 14px 28px;
+      touch-action: manipulation;
+    }
+
+    .app {
+      width: min(100%, 980px);
+      display: grid;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .hero,
+    .game-shell,
+    .controls,
+    .how-to {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      padding: 22px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.3rem);
+      letter-spacing: 0.04em;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--subtext);
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+
+    .game-shell {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .play-area {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board-frame,
+    .panel {
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .board-frame {
+      padding: 10px;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.88), rgba(246, 241, 251, 0.96));
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 12px;
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      color: var(--subtext);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .score {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .small {
+      color: var(--subtext);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .status {
+      min-height: 2.8em;
+      font-weight: 600;
+      color: #8077a6;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font: inherit;
+      font-weight: 700;
+      color: var(--text);
+      background: linear-gradient(180deg, #ffffff, #fceff4);
+      box-shadow: 0 10px 20px rgba(177, 164, 204, 0.18);
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .primary {
+      background: linear-gradient(180deg, #ffdce5, #ffc4d4);
+    }
+
+    .controls {
+      padding: 16px;
+    }
+
+    .controls h2,
+    .how-to h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+
+    .touch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .touch-btn {
+      min-height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #eef9ff);
+      font-size: 1.1rem;
+    }
+
+    .touch-btn.drop {
+      background: linear-gradient(180deg, #e9ffe9, #cbf1d6);
+    }
+
+    .touch-btn.rotate {
+      background: linear-gradient(180deg, #fff5e7, #ffe0c2);
+    }
+
+    .touch-btn.pause {
+      background: linear-gradient(180deg, #ffe9f0, #ffd0dc);
+    }
+
+    .how-to {
+      padding: 16px 18px;
+    }
+
+    .how-to p {
+      margin: 6px 0;
+      color: var(--subtext);
+      line-height: 1.5;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #7a6d9e;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    @media (max-width: 780px) {
+      .play-area {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 540px) {
+      body {
+        padding: 12px 10px 20px;
+      }
+
+      .hero,
+      .game-shell,
+      .controls,
+      .how-to {
+        border-radius: 20px;
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .touch-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .touch-btn {
+        min-height: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>Pastel Tetris</h1>
+      <p>스마트폰에서도 바로 즐길 수 있는 파스텔 톤 테트리스입니다. 줄을 지우고 최고 점수를 갱신해보세요.</p>
+    </section>
+
+    <section class="game-shell">
+      <div class="play-area">
+        <div class="board-frame">
+          <canvas id="board" width="300" height="600" aria-label="테트리스 게임 보드"></canvas>
+          <div class="overlay show" id="overlay">시작 버튼을 눌러 게임을 시작하세요</div>
+        </div>
+
+        <aside class="sidebar">
+          <div class="panel">
+            <h2>점수</h2>
+            <div class="score" id="score">0</div>
+          </div>
+
+          <div class="panel">
+            <h2>최고 점수</h2>
+            <div class="score" id="high-score">0</div>
+          </div>
+
+          <div class="panel">
+            <h2>다음 블록</h2>
+            <canvas id="next" width="120" height="120" aria-label="다음 블록 미리보기"></canvas>
+          </div>
+
+          <div class="panel">
+            <h2>상태</h2>
+            <div class="status" id="status">대기 중</div>
+            <div class="buttons">
+              <button class="primary" id="start-btn">시작</button>
+              <button id="restart-btn">다시 시작</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="controls">
+      <h2>터치 조작</h2>
+      <div class="touch-grid">
+        <button class="touch-btn" data-action="left">◀ 이동</button>
+        <button class="touch-btn" data-action="right">이동 ▶</button>
+        <button class="touch-btn rotate" data-action="rotate">↻ 회전</button>
+        <button class="touch-btn drop" data-action="drop">⤓ 즉시 낙하</button>
+        <button class="touch-btn" data-action="down">▼ 내리기</button>
+        <button class="touch-btn pause" data-action="pause">⏸ 일시정지</button>
+      </div>
+    </section>
+
+    <section class="how-to">
+      <h2>플레이 방법</h2>
+      <p>가로 한 줄을 빈칸 없이 채우면 줄이 사라지고 점수를 얻습니다.</p>
+      <p>블록이 맨 위까지 쌓이면 게임이 끝납니다.</p>
+      <p>키보드가 있으면 방향키, 위쪽 방향키 회전, 스페이스 즉시 낙하, P 일시정지도 사용할 수 있습니다.</p>
+    </section>
+  </main>
+
+  <script>
+    const COLS = 10;
+    const ROWS = 20;
+    const BLOCK = 30;
+    const PREVIEW = 24;
+    const STORAGE_KEY = "pastel-tetris-high-score";
+
+    const palette = {
+      I: "#A9DEF9",
+      J: "#CDB4DB",
+      L: "#FFD6A5",
+      O: "#FDFFB6",
+      S: "#CAFFBF",
+      T: "#FFC6D9",
+      Z: "#BDE0FE"
+    };
+
+    const tetrominoes = {
+      I: [[1, 1, 1, 1]],
+      J: [[1, 0, 0], [1, 1, 1]],
+      L: [[0, 0, 1], [1, 1, 1]],
+      O: [[1, 1], [1, 1]],
+      S: [[0, 1, 1], [1, 1, 0]],
+      T: [[0, 1, 0], [1, 1, 1]],
+      Z: [[1, 1, 0], [0, 1, 1]]
+    };
+
+    const boardCanvas = document.getElementById("board");
+    const boardCtx = boardCanvas.getContext("2d");
+    const nextCanvas = document.getElementById("next");
+    const nextCtx = nextCanvas.getContext("2d");
+    const scoreEl = document.getElementById("score");
+    const highScoreEl = document.getElementById("high-score");
+    const statusEl = document.getElementById("status");
+    const overlayEl = document.getElementById("overlay");
+    const startBtn = document.getElementById("start-btn");
+    const restartBtn = document.getElementById("restart-btn");
+
+    let board = [];
+    let score = 0;
+    let highScore = Number(localStorage.getItem(STORAGE_KEY) || 0);
+    let currentPiece = null;
+    let nextPiece = null;
+    let dropCounter = 0;
+    let dropInterval = 700;
+    let lastTime = 0;
+    let animationId = null;
+    let isRunning = false;
+    let isPaused = false;
+
+    highScoreEl.textContent = highScore;
+
+    function createBoard() {
+      return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    }
+
+    function cloneMatrix(matrix) {
+      return matrix.map((row) => [...row]);
+    }
+
+    function randomType() {
+      const keys = Object.keys(tetrominoes);
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    function createPiece(type = randomType()) {
+      return {
+        type,
+        matrix: cloneMatrix(tetrominoes[type]),
+        color: palette[type],
+        x: 0,
+        y: 0
+      };
+    }
+
+    function resetGame() {
+      board = createBoard();
+      score = 0;
+      dropInterval = 700;
+      currentPiece = createPiece();
+      nextPiece = createPiece();
+      scoreEl.textContent = score;
+      spawnPiece(currentPiece);
+      setStatus("플레이 중");
+      hideOverlay();
+    }
+
+    function spawnPiece(piece) {
+      piece.x = Math.floor((COLS - piece.matrix[0].length) / 2);
+      piece.y = 0;
+      if (collides(board, piece)) {
+        gameOver();
+      }
+    }
+
+    function merge(boardState, piece) {
+      piece.matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value) {
+            boardState[y + piece.y][x + piece.x] = piece.color;
+          }
+        });
+      });
+    }
+
+    function collides(boardState, piece) {
+      return piece.matrix.some((row, y) =>
+        row.some((value, x) => {
+          if (!value) return false;
+          const nextY = y + piece.y;
+          const nextX = x + piece.x;
+          return (
+            nextX < 0 ||
+            nextX >= COLS ||
+            nextY >= ROWS ||
+            (nextY >= 0 && boardState[nextY][nextX])
+          );
+        })
+      );
+    }
+
+    function rotateMatrix(matrix) {
+      return matrix[0].map((_, index) => matrix.map((row) => row[index]).reverse());
+    }
+
+    function rotatePiece() {
+      if (!isRunning || isPaused) return;
+      const rotated = rotateMatrix(currentPiece.matrix);
+      const originalX = currentPiece.x;
+      currentPiece.matrix = rotated;
+
+      let offset = 1;
+      while (collides(board, currentPiece)) {
+        currentPiece.x += offset;
+        offset = -(offset + (offset > 0 ? 1 : -1));
+        if (Math.abs(offset) > currentPiece.matrix[0].length + 1) {
+          currentPiece.matrix = rotateMatrix(rotateMatrix(rotateMatrix(rotated)));
+          currentPiece.x = originalX;
+          return;
+        }
+      }
+      draw();
+    }
+
+    function movePiece(dir) {
+      if (!isRunning || isPaused) return;
+      currentPiece.x += dir;
+      if (collides(board, currentPiece)) {
+        currentPiece.x -= dir;
+        return;
+      }
+      draw();
+    }
+
+    function softDrop() {
+      if (!isRunning || isPaused) return;
+      currentPiece.y += 1;
+      if (collides(board, currentPiece)) {
+        currentPiece.y -= 1;
+        lockPiece();
+        return;
+      }
+      dropCounter = 0;
+      draw();
+    }
+
+    function hardDrop() {
+      if (!isRunning || isPaused) return;
+      while (!collides(board, currentPiece)) {
+        currentPiece.y += 1;
+      }
+      currentPiece.y -= 1;
+      lockPiece();
+    }
+
+    function lockPiece() {
+      merge(board, currentPiece);
+      clearLines();
+      currentPiece = nextPiece;
+      nextPiece = createPiece();
+      spawnPiece(currentPiece);
+      drawNext();
+      draw();
+    }
+
+    function clearLines() {
+      let cleared = 0;
+      for (let y = ROWS - 1; y >= 0; y--) {
+        if (board[y].every(Boolean)) {
+          board.splice(y, 1);
+          board.unshift(Array(COLS).fill(0));
+          cleared += 1;
+          y++;
+        }
+      }
+
+      if (!cleared) return;
+
+      const points = [0, 100, 250, 450, 700];
+      score += points[cleared] || cleared * 250;
+      scoreEl.textContent = score;
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem(STORAGE_KEY, String(highScore));
+        highScoreEl.textContent = highScore;
+      }
+
+      dropInterval = Math.max(220, 700 - Math.floor(score / 300) * 35);
+    }
+
+    function drawCell(ctx, x, y, size, color) {
+      const radius = Math.max(4, size * 0.18);
+      ctx.fillStyle = color;
+      roundRect(ctx, x * size + 1.5, y * size + 1.5, size - 3, size - 3, radius);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.32)";
+      roundRect(ctx, x * size + 4, y * size + 4, size - 12, Math.max(5, size * 0.2), radius / 1.5);
+      ctx.fill();
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + width, y, x + width, y + height, radius);
+      ctx.arcTo(x + width, y + height, x, y + height, radius);
+      ctx.arcTo(x, y + height, x, y, radius);
+      ctx.arcTo(x, y, x + width, y, radius);
+      ctx.closePath();
+    }
+
+    function drawGrid(ctx, width, height, size) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = "rgba(231, 220, 242, 0.85)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= width; x += size) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= height; y += size) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawBoard() {
+      drawGrid(boardCtx, boardCanvas.width, boardCanvas.height, BLOCK);
+
+      board.forEach((row, y) => {
+        row.forEach((color, x) => {
+          if (color) drawCell(boardCtx, x, y, BLOCK, color);
+        });
+      });
+
+      if (currentPiece) {
+        currentPiece.matrix.forEach((row, y) => {
+          row.forEach((value, x) => {
+            if (value) drawCell(boardCtx, x + currentPiece.x, y + currentPiece.y, BLOCK, currentPiece.color);
+          });
+        });
+      }
+    }
+
+    function drawNext() {
+      nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+      nextCtx.fillStyle = "rgba(255,255,255,0.9)";
+      nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+      if (!nextPiece) return;
+
+      const matrix = nextPiece.matrix;
+      const offsetX = Math.floor((nextCanvas.width - matrix[0].length * PREVIEW) / 2 / PREVIEW);
+      const offsetY = Math.floor((nextCanvas.height - matrix.length * PREVIEW) / 2 / PREVIEW);
+
+      matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value) drawCell(nextCtx, x + offsetX, y + offsetY, PREVIEW, nextPiece.color);
+        });
+      });
+    }
+
+    function draw() {
+      drawBoard();
+      drawNext();
+    }
+
+    function update(time = 0) {
+      if (!isRunning) return;
+      const delta = time - lastTime;
+      lastTime = time;
+
+      if (!isPaused) {
+        dropCounter += delta;
+        if (dropCounter > dropInterval) {
+          softDrop();
+        }
+      }
+
+      draw();
+      animationId = requestAnimationFrame(update);
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function showOverlay(text) {
+      overlayEl.textContent = text;
+      overlayEl.classList.add("show");
+    }
+
+    function hideOverlay() {
+      overlayEl.classList.remove("show");
+    }
+
+    function startGame() {
+      cancelAnimationFrame(animationId);
+      isRunning = true;
+      isPaused = false;
+      lastTime = 0;
+      dropCounter = 0;
+      resetGame();
+      draw();
+      animationId = requestAnimationFrame(update);
+    }
+
+    function togglePause() {
+      if (!isRunning) return;
+      isPaused = !isPaused;
+      setStatus(isPaused ? "일시정지" : "플레이 중");
+      if (isPaused) {
+        showOverlay("일시정지\n다시 누르면 계속 진행됩니다");
+      } else {
+        hideOverlay();
+      }
+    }
+
+    function gameOver() {
+      isRunning = false;
+      isPaused = false;
+      cancelAnimationFrame(animationId);
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem(STORAGE_KEY, String(highScore));
+        highScoreEl.textContent = highScore;
+      }
+
+      setStatus("게임 오버");
+      showOverlay("게임 오버\n다시 시작 버튼으로 재도전하세요");
+      draw();
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (!isRunning && event.code !== "Enter") return;
+
+      switch (event.code) {
+        case "ArrowLeft":
+          event.preventDefault();
+          movePiece(-1);
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          movePiece(1);
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          softDrop();
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          rotatePiece();
+          break;
+        case "Space":
+          event.preventDefault();
+          hardDrop();
+          break;
+        case "KeyP":
+          event.preventDefault();
+          togglePause();
+          break;
+        case "Enter":
+          if (!isRunning) startGame();
+          break;
+      }
+    });
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      const handler = () => {
+        const action = button.dataset.action;
+        if (action === "left") movePiece(-1);
+        if (action === "right") movePiece(1);
+        if (action === "rotate") rotatePiece();
+        if (action === "drop") hardDrop();
+        if (action === "down") softDrop();
+        if (action === "pause") togglePause();
+      };
+
+      button.addEventListener("click", handler);
+      button.addEventListener("touchstart", (event) => {
+        event.preventDefault();
+        handler();
+      }, { passive: false });
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    drawBoard();
+    drawNext();
+    showOverlay("시작 버튼을 눌러 게임을 시작하세요");
+  </script>
+</body>
+</html>
